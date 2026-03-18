@@ -188,7 +188,9 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const COACH_EMAIL='dean@rge-ltd.com';
 
 const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{
+  auth:{persistSession:true,storageKey:'sb-session',storage:window.localStorage}
+});
 
 let weekOffset=0;
 let allClients=[];
@@ -320,27 +322,67 @@ function renderDashboard(){
 function changeWeek(d){weekOffset+=d;renderDashboard();}
 
 (async()=>{
-  let {data:{session}}=await sb.auth.getSession();
-  if(!session){
-    await new Promise(resolve=>{
-      const {data:{subscription}}=sb.auth.onAuthStateChange((event,s)=>{
-        session=s; subscription.unsubscribe(); resolve();
-      });
-      setTimeout(resolve,2000);
-    });
-  }
+  let {data:{session}} = await sb.auth.getSession();
   document.getElementById('loadingOverlay').style.display='none';
-  if(!session?.user){window.location.href='index.html';return;}
-  const userEmail=session.user.email.toLowerCase().trim();
-  const coachEmail=COACH_EMAIL.toLowerCase().trim();
-  if(userEmail!==coachEmail){
+  
+  // No session - show login form directly on this page
+  if(!session?.user){
     document.getElementById('accessDenied').style.display='flex';
-    document.getElementById('accessDenied').innerHTML+='<p style="color:#6b7bb0;font-size:11px;margin-top:10px">Signed in as: '+session.user.email+'</p>';
+    document.getElementById('accessDenied').innerHTML = `
+      <div style="background:#111a3e;border:1px solid #2a3870;border-radius:16px;padding:32px;width:100%;max-width:400px;text-align:center">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:8px">COACH LOGIN</div>
+        <div style="font-family:'DM Mono',monospace;font-size:10px;color:#6b7bb0;margin-bottom:24px">Progress HEX Dashboard</div>
+        <input type="email" id="cEmail" placeholder="your@email.com" style="width:100%;background:#1a2550;border:1px solid #2a3870;color:#e8eaf6;padding:12px 14px;border-radius:10px;font-size:16px;outline:none;margin-bottom:10px"/>
+        <div style="position:relative;margin-bottom:14px">
+          <input type="password" id="cPass" placeholder="••••••••" style="width:100%;background:#1a2550;border:1px solid #2a3870;color:#e8eaf6;padding:12px 14px;padding-right:48px;border-radius:10px;font-size:16px;outline:none;"/>
+          <button onclick="togglePass()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#6b7bb0;cursor:pointer;font-size:18px" id="eyeBtn">👁</button>
+        </div>
+        <button onclick="coachLogin()" style="width:100%;background:linear-gradient(135deg,#ff6b1a,#ff8c00);border:none;color:#fff;padding:14px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer">SIGN IN</button>
+        <div id="cMsg" style="margin-top:12px;font-size:13px;min-height:18px;color:#e84f4f"></div>
+        <button onclick="forgotPass()" style="background:none;border:none;color:#6b7bb0;font-size:12px;cursor:pointer;margin-top:8px;text-decoration:underline;font-family:'DM Mono',monospace;letter-spacing:0.5px">Forgot password?</button>
+      </div>`;
+    return;
+  }
+
+  const userEmail = session.user.email.toLowerCase().trim();
+  const coachEmail = COACH_EMAIL.toLowerCase().trim();
+  if(userEmail !== coachEmail){
+    document.getElementById('accessDenied').style.display='flex';
+    document.getElementById('accessDenied').innerHTML = '<div style="text-align:center"><div style="font-size:48px;margin-bottom:16px">🔒</div><div style="font-family:Bebas Neue,sans-serif;font-size:24px;letter-spacing:2px;margin-bottom:8px">Coach Access Only</div><p style="color:#6b7bb0;font-size:13px">Signed in as: '+session.user.email+'</p><a href="index.html" style="color:#ff6b1a;font-family:DM Mono,monospace;font-size:11px">← Back to tracker</a></div>';
     return;
   }
   document.getElementById('dashboardScreen').style.display='block';
   await loadDashboard(session.user);
 })();
+
+async function forgotPass(){
+  const email = document.getElementById('cEmail').value.trim();
+  const msg = document.getElementById('cMsg');
+  if(!email){msg.style.color='#e84f4f';msg.textContent='Enter your email address first';return;}
+  const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo:'https://timesaverhex.netlify.app/coach.html'});
+  if(error){msg.style.color='#e84f4f';msg.textContent=error.message;return;}
+  msg.style.color='#3ecf72';msg.textContent='✓ Password reset email sent — check your inbox';
+}
+function togglePass(){
+  const p=document.getElementById('cPass');
+  const b=document.getElementById('eyeBtn');
+  if(p.type==='password'){p.type='text';b.textContent='🙈';}
+  else{p.type='password';b.textContent='👁';}
+}
+async function coachLogin(){
+  const email = document.getElementById('cEmail').value.trim();
+  const pass = document.getElementById('cPass').value;
+  const msg = document.getElementById('cMsg');
+  if(!email||!pass){msg.textContent='Please fill in all fields';return;}
+  const {data,error} = await sb.auth.signInWithPassword({email,password:pass});
+  if(error){msg.textContent='Invalid email or password';return;}
+  if(data.user.email.toLowerCase().trim()!==COACH_EMAIL.toLowerCase().trim()){
+    msg.textContent='This account does not have coach access';return;
+  }
+  document.getElementById('accessDenied').style.display='none';
+  document.getElementById('dashboardScreen').style.display='block';
+  await loadDashboard(data.user);
+}
 </script>
 </body>
 </html>
