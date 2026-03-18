@@ -534,7 +534,15 @@ const COACH_EMAIL = 'dean@rge-ltd.com';
 const DAY_START=5, DAY_END=18, TOTAL_MINS=780;
 const COLORS=['#ff6b1a','#3ecf72','#4f8ef7','#f5c842','#e84f4f','#a78bfa','#06b6d4','#f97316','#84cc16','#ec4899'];
 const DAYS_SHORT=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const DEFAULT_CATS=[{name:'Coaching / Progress HEX',color:'#ff6b1a'},{name:'RGE / Business',color:'#4f8ef7'},{name:'5km Daily Run',color:'#3ecf72'},{name:'Parkrun / Charity',color:'#06b6d4'},{name:'Admin / Misc',color:'#f5c842'},{name:'Personal / Family',color:'#a78bfa'},{name:'Low Value / Waste',color:'#e84f4f'}];
+const DEFAULT_CATS=[
+  {name:'Deep Work',color:'#ff6b1a'},
+  {name:'Meetings & Calls',color:'#4f8ef7'},
+  {name:'Exercise & Health',color:'#3ecf72'},
+  {name:'Learning & Development',color:'#06b6d4'},
+  {name:'Admin & Misc',color:'#f5c842'},
+  {name:'Personal & Family',color:'#a78bfa'},
+  {name:'Low Value / Waste',color:'#e84f4f'},
+];
 
 const TIME_OPTS=[];
 for(let h=DAY_START;h<=DAY_END;h++) for(let m=0;m<60;m+=15){
