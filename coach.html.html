@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Progress HEX · Coach Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{--navy:#0e1230;--navy2:#111a3e;--navy3:#1a2550;--navy4:#1e2d60;--border:#2a3870;--border2:#243060;--text:#e8eaf6;--text2:#a0aace;--muted:#6b7bb0;--orange:#ff6b1a;--orange2:#ff8c00;--orange-grad:linear-gradient(135deg,#ff6b1a,#ff8c00);--green:#3ecf72;--red:#e84f4f;--yellow:#f5c842;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--navy);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+  header{background:var(--navy2);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .logo{display:flex;align-items:center;font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:#fff;}
+  .logo-hex-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;}
+  .logo-hex-wrap svg{width:56px;height:50px;}
+  .logo-hex-text{position:absolute;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;color:#fff;}
+  .logo-sub{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-left:12px;border-left:1px solid var(--border2);padding-left:12px;line-height:1.5;}
+  .header-right{display:flex;align-items:center;gap:12px;}
+  .btn-back{background:var(--navy3);border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:all 0.15s;display:flex;align-items:center;gap:6px;}
+  .btn-back:hover{border-color:var(--orange);color:var(--orange);}
+  .btn-signout{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
+  .btn-signout:hover{border-color:var(--red);color:var(--red);}
+
+  /* MAIN */
+  .main{padding:24px;max-width:1400px;margin:0 auto;}
+  .page-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;margin-bottom:4px;}
+  .page-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:24px;}
+
+  /* SUMMARY CARDS */
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+  .summary-card{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .summary-label{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
+  .summary-val{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;}
+  .summary-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;}
+
+  /* WEEK NAV */
+  .controls{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+  .week-nav{display:flex;align-items:center;gap:10px;background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;}
+  .week-nav button{background:none;border:none;color:var(--text2);cursor:pointer;font-size:16px;padding:0 4px;transition:color 0.15s;}
+  .week-nav button:hover{color:var(--orange);}
+  .week-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--text2);min-width:140px;text-align:center;}
+  .section-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;color:var(--text2);}
+
+  /* CLIENT TABLE */
+  .client-table{background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:28px;}
+  .ct-header{display:grid;grid-template-columns:200px 80px 90px 90px 90px 90px 90px 1fr;gap:0;background:var(--navy3);border-bottom:1px solid var(--border);}
+  .ct-header-cell{padding:10px 14px;font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);}
+  .ct-row{display:grid;grid-template-columns:200px 80px 90px 90px 90px 90px 90px 1fr;gap:0;border-bottom:1px solid var(--border2);transition:background 0.15s;}
+  .ct-row:last-child{border-bottom:none;}
+  .ct-row:hover{background:var(--navy3);}
+  .ct-cell{padding:12px 14px;font-size:12px;display:flex;align-items:center;}
+  .client-name{font-weight:600;color:var(--text);}
+  .client-email{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+  .metric{font-family:'DM Mono',monospace;font-size:12px;}
+  .eff-bar-wrap{width:60px;height:4px;background:var(--navy3);border-radius:2px;overflow:hidden;margin-right:6px;}
+  .eff-bar{height:100%;border-radius:2px;background:var(--green);}
+  .flag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;letter-spacing:0.5px;}
+  .flag-green{background:rgba(62,207,114,0.15);color:var(--green);}
+  .flag-yellow{background:rgba(245,200,66,0.15);color:var(--yellow);}
+  .flag-red{background:rgba(232,79,79,0.15);color:var(--red);}
+  .no-data{color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;}
+
+  /* CLIENT DETAIL */
+  .clients-detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+  .client-card{background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .cc-header{padding:14px 16px;background:var(--navy3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .cc-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1.5px;}
+  .cc-email{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
+  .cc-body{padding:14px 16px;}
+  .cc-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+  .cc-kpi{background:var(--navy3);border-radius:7px;padding:8px;text-align:center;}
+  .cc-kpi-label{font-family:'DM Mono',monospace;font-size:7px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:3px;}
+  .cc-kpi-val{font-family:'Bebas Neue',sans-serif;font-size:20px;}
+  .cc-entries{max-height:160px;overflow-y:auto;}
+  .cc-entry{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--border2);font-size:11px;}
+  .cc-entry:last-child{border-bottom:none;}
+  .cc-entry-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);min-width:70px;}
+  .cc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .cc-entry-task{flex:1;color:var(--text2);}
+  .waste-tag{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:600;}
+  .tag-good{background:rgba(62,207,114,0.15);color:var(--green);}
+  .tag-mixed{background:rgba(245,200,66,0.15);color:var(--yellow);}
+  .tag-waste{background:rgba(232,79,79,0.15);color:var(--red);}
+  .cc-reflection{background:var(--navy3);border-radius:7px;padding:10px;margin-top:10px;font-size:11px;color:var(--text2);font-style:italic;}
+  .cc-reflection-label{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px;font-style:normal;}
+  .empty-state{text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;}
+
+  /* LOADING */
+  .loading-overlay{position:fixed;inset:0;background:var(--navy);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+  .loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;}
+  .access-denied{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;font-family:'DM Mono',monospace;font-size:12px;color:var(--red);}
+  ::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">LOADING DASHBOARD...</div>
+</div>
+
+<div id="accessDenied" class="access-denied" style="display:none">
+  <div style="font-size:32px">🔒</div>
+  <div>Coach access only</div>
+  <a href="index.html" style="color:var(--orange);text-decoration:none;font-size:11px">← Back to tracker</a>
+</div>
+
+<div id="dashboardScreen" style="display:none">
+  <header>
+    <div class="logo">
+      <span>PROGRESS</span>
+      <div class="logo-hex-wrap">
+        <svg viewBox="0 0 80 72" fill="none"><defs><linearGradient id="hg" x1="0" y1="0" x2="80" y2="72" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#ff4400"/><stop offset="50%" stop-color="#ff6b1a"/><stop offset="100%" stop-color="#ffaa00"/></linearGradient></defs><path d="M40 4 L73 21 Q76 23 76 26 L76 46 Q76 49 73 51 L40 68 L7 51 Q4 49 4 46 L4 26 Q4 23 7 21 Z" fill="#111a3e" stroke="url(#hg)" stroke-width="5" stroke-linejoin="round"/></svg>
+        <span class="logo-hex-text">HEX</span>
+      </div>
+      <div class="logo-sub">Coach<br>Dashboard</div>
+    </div>
+    <div class="header-right">
+      <a href="index.html" class="btn-back">← My Tracker</a>
+      <button class="btn-signout" onclick="signOut()">Sign Out</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="page-title">🎯 Coach Dashboard</div>
+    <div class="page-sub" id="coachSubtitle">DEAN J BARLOW · PROGRESS HEX COACHING</div>
+
+    <!-- Summary -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-label">Active Clients</div>
+        <div class="summary-val" id="totalClients" style="color:var(--orange)">—</div>
+        <div class="summary-sub">Logged in this week</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Avg Efficiency</div>
+        <div class="summary-val" id="avgEfficiency" style="color:var(--green)">—</div>
+        <div class="summary-sub">Across all clients</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Clients Flagged</div>
+        <div class="summary-val" id="flaggedClients" style="color:var(--red)">—</div>
+        <div class="summary-sub">High waste this week</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Total Hours Logged</div>
+        <div class="summary-val" id="totalHours" style="color:var(--text)">—</div>
+        <div class="summary-sub">All clients this week</div>
+      </div>
+    </div>
+
+    <!-- Week nav + table -->
+    <div class="controls">
+      <div class="week-nav">
+        <button onclick="changeWeek(-1)">‹</button>
+        <div class="week-label" id="weekLabel"></div>
+        <button onclick="changeWeek(1)">›</button>
+      </div>
+      <div class="section-title">ALL CLIENTS · WEEK SNAPSHOT</div>
+    </div>
+
+    <div class="client-table">
+      <div class="ct-header">
+        <div class="ct-header-cell">Client</div>
+        <div class="ct-header-cell">Total Hrs</div>
+        <div class="ct-header-cell">Productive</div>
+        <div class="ct-header-cell">Wasted</div>
+        <div class="ct-header-cell">Efficiency</div>
+        <div class="ct-header-cell">5km Run</div>
+        <div class="ct-header-cell">Rating</div>
+        <div class="ct-header-cell">Flag</div>
+      </div>
+      <div id="clientTableBody"></div>
+    </div>
+
+    <!-- Client detail cards -->
+    <div class="section-title" style="margin-bottom:14px">CLIENT DETAIL CARDS</div>
+    <div class="clients-detail-grid" id="clientDetailGrid"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://bozpukywasxmroyomhpa.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvenB1a3l3YXN4bXJveW9taHBhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTI2NDIsImV4cCI6MjA4ODg4ODY0Mn0.3H1p54tR89udsr_5PiEOH-aKro0t9Yx8PTfF3pNVUU4';
+const COACH_EMAIL='dean@rge-ltd.com';
+
+const {createClient}=supabase;
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let weekOffset=0;
+let allClients=[];
+let allEntries=[];
+let allReflections=[];
+let allCategories=[];
+
+function dateKey(d){return d.toISOString().split('T')[0];}
+function getWeekDates(offset=0){const now=new Date();const day=now.getDay();const diff=day===0?-6:1-day;const mon=new Date(now);mon.setDate(now.getDate()+diff+offset*7);return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});}
+function fmtDate(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function minsToHrs(m){if(m<=0)return'0';const h=Math.floor(m/60),mn=m%60;return mn>0?`${h}.${Math.round(mn/60*10)}`:`${h}`;}
+function formatTime(h,m){const ap=h<12?'am':h===12?'pm':'pm';const hd=h>12?h-12:h===0?12:h;return`${hd}:${m===0?'00':m<10?'0'+m:m}${ap}`;}
+
+async function signOut(){await sb.auth.signOut();window.location.href='index.html';}
+
+async function loadDashboard(user){
+  // Load all entries and reflections (coach sees all via service role — for now load own + clients)
+  // In production you'd use a service role key server-side. For now we load all visible data.
+  const [{data:entries},{data:reflections},{data:categories},{data:profiles}]=await Promise.all([
+    sb.from('entries').select('*'),
+    sb.from('reflections').select('*'),
+    sb.from('categories').select('*'),
+    sb.from('coach_clients').select('*').eq('coach_id',user.id)
+  ]);
+
+  allEntries=entries||[];
+  allReflections=reflections||[];
+  allCategories=categories||[];
+
+  // Group by user
+  const userIds=[...new Set(allEntries.map(e=>e.user_id))];
+
+  // Build client list from entries
+  allClients=userIds.map(uid=>{
+    const clientEntries=allEntries.filter(e=>e.user_id===uid);
+    const name=clientEntries[0]?.client_name||'Unknown';
+    return {id:uid,name,entries:clientEntries};
+  });
+
+  renderDashboard();
+}
+
+function renderDashboard(){
+  const days=getWeekDates(weekOffset);
+  const weekKeys=days.map(dateKey);
+  document.getElementById('weekLabel').textContent=`${fmtDate(days[0])} – ${fmtDate(days[6])}`;
+
+  const clientsWithData=allClients.map(client=>{
+    const wEntries=client.entries.filter(e=>weekKeys.includes(e.day));
+    const totalMins=wEntries.reduce((s,e)=>s+(e.duration_mins||0),0);
+    const prodMins=wEntries.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
+    const wasteMins=wEntries.filter(e=>e.waste==='waste').reduce((s,e)=>s+(e.duration_mins||0),0);
+    const effPct=totalMins>0?Math.round(prodMins/totalMins*100):0;
+    const wastePct=totalMins>0?Math.round(wasteMins/totalMins*100):0;
+    const has5km=wEntries.some(e=>e.cat_name?.toLowerCase().includes('5km')||e.cat_name?.toLowerCase().includes('run'));
+    const ref=allReflections.find(r=>r.user_id===client.id&&r.week_of===dateKey(days[0]));
+    return{...client,wEntries,totalMins,prodMins,wasteMins,effPct,wastePct,has5km,ref};
+  }).filter(c=>c.wEntries.length>0);
+
+  // Summary cards
+  const active=clientsWithData.length;
+  const avgEff=active>0?Math.round(clientsWithData.reduce((s,c)=>s+c.effPct,0)/active):0;
+  const flagged=clientsWithData.filter(c=>c.wastePct>30).length;
+  const totalHrs=clientsWithData.reduce((s,c)=>s+c.totalMins,0);
+  document.getElementById('totalClients').textContent=active;
+  document.getElementById('avgEfficiency').textContent=avgEff+'%';
+  document.getElementById('flaggedClients').textContent=flagged;
+  document.getElementById('totalHours').textContent=minsToHrs(totalHrs)+'h';
+
+  // Table
+  const tbody=document.getElementById('clientTableBody'); tbody.innerHTML='';
+  if(!clientsWithData.length){
+    tbody.innerHTML='<div class="empty-state">No client data for this week yet</div>';
+  } else {
+    clientsWithData.forEach(c=>{
+      const flagClass=c.wastePct>30?'flag-red':c.wastePct>15?'flag-yellow':'flag-green';
+      const flagText=c.wastePct>30?'🚨 High Waste':c.wastePct>15?'⚠ Review':'✓ On Track';
+      const row=document.createElement('div'); row.className='ct-row';
+      row.innerHTML=`
+        <div class="ct-cell"><div><div class="client-name">${c.name}</div></div></div>
+        <div class="ct-cell"><span class="metric" style="color:var(--text)">${minsToHrs(c.totalMins)}h</span></div>
+        <div class="ct-cell"><span class="metric" style="color:var(--green)">${minsToHrs(c.prodMins)}h</span></div>
+        <div class="ct-cell"><span class="metric" style="color:var(--red)">${minsToHrs(c.wasteMins)}h</span></div>
+        <div class="ct-cell"><div class="eff-bar-wrap"><div class="eff-bar" style="width:${c.effPct}%"></div></div><span class="metric" style="color:var(--green)">${c.effPct}%</span></div>
+        <div class="ct-cell"><span style="font-size:14px">${c.has5km?'✅':'❌'}</span></div>
+        <div class="ct-cell"><span class="metric" style="color:var(--orange)">${c.ref?.rating?'★'.repeat(c.ref.rating):'—'}</span></div>
+        <div class="ct-cell"><span class="flag ${flagClass}">${flagText}</span></div>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  // Detail cards
+  const grid=document.getElementById('clientDetailGrid'); grid.innerHTML='';
+  if(!clientsWithData.length){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1">No client activity logged this week yet.<br>Clients need to sign up and start logging time.</div>';
+    return;
+  }
+  clientsWithData.forEach(c=>{
+    const sortedEntries=c.wEntries.sort((a,b)=>a.day.localeCompare(b.day)||(a.start_h*60+a.start_m)-(b.start_h*60+b.start_m));
+    const card=document.createElement('div'); card.className='client-card';
+    const flagClass=c.wastePct>30?'flag-red':c.wastePct>15?'flag-yellow':'flag-green';
+    const flagText=c.wastePct>30?'🚨 High Waste':c.wastePct>15?'⚠ Review':'✓ On Track';
+    card.innerHTML=`
+      <div class="cc-header">
+        <div><div class="cc-name">${c.name}</div></div>
+        <span class="flag ${flagClass}">${flagText}</span>
+      </div>
+      <div class="cc-body">
+        <div class="cc-kpis">
+          <div class="cc-kpi"><div class="cc-kpi-label">Total</div><div class="cc-kpi-val" style="color:var(--text)">${minsToHrs(c.totalMins)}h</div></div>
+          <div class="cc-kpi"><div class="cc-kpi-label">Productive</div><div class="cc-kpi-val" style="color:var(--green)">${minsToHrs(c.prodMins)}h</div></div>
+          <div class="cc-kpi"><div class="cc-kpi-label">Efficiency</div><div class="cc-kpi-val" style="color:var(--orange)">${c.effPct}%</div></div>
+        </div>
+        <div class="cc-entries">
+          ${sortedEntries.slice(0,8).map(e=>{
+            const cat=allCategories.find(cat=>cat.id===e.cat_id);
+            const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';
+            return`<div class="cc-entry"><span class="cc-entry-time">${e.day.slice(5)} ${formatTime(e.start_h,e.start_m)}</span><div class="cc-dot" style="background:${cat?.color||'#555'}"></div><span class="cc-entry-task">${e.task}</span><span class="waste-tag ${tagCls}">${minsToHrs(e.duration_mins||0)}h</span></div>`;
+          }).join('')}
+          ${sortedEntries.length>8?`<div style="text-align:center;padding:6px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">+${sortedEntries.length-8} more entries</div>`:''}
+        </div>
+        ${c.ref?.went_well?`<div class="cc-reflection"><div class="cc-reflection-label">WHAT WENT WELL</div>${c.ref.went_well}</div>`:''}
+        ${c.ref?.wasted_time?`<div class="cc-reflection" style="border-left:2px solid var(--red)"><div class="cc-reflection-label" style="color:var(--red)">WASTED TIME</div>${c.ref.wasted_time}</div>`:''}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function changeWeek(d){weekOffset+=d;renderDashboard();}
+
+(async()=>{
+  let {data:{session}}=await sb.auth.getSession();
+  if(!session){
+    await new Promise(resolve=>{
+      const {data:{subscription}}=sb.auth.onAuthStateChange((event,s)=>{
+        session=s; subscription.unsubscribe(); resolve();
+      });
+      setTimeout(resolve,2000);
+    });
+  }
+  document.getElementById('loadingOverlay').style.display='none';
+  if(!session?.user){window.location.href='index.html';return;}
+  const userEmail=session.user.email.toLowerCase().trim();
+  const coachEmail=COACH_EMAIL.toLowerCase().trim();
+  if(userEmail!==coachEmail){
+    document.getElementById('accessDenied').style.display='flex';
+    document.getElementById('accessDenied').innerHTML+='<p style="color:#6b7bb0;font-size:11px;margin-top:10px">Signed in as: '+session.user.email+'</p>';
+    return;
+  }
+  document.getElementById('dashboardScreen').style.display='block';
+  await loadDashboard(session.user);
+})();
+</script>
+</body>
+</html>
