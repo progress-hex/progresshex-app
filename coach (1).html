@@ -188,7 +188,9 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const COACH_EMAIL='dean@rge-ltd.com';
 
 const {createClient}=supabase;
-const sb=createClient(SUPABASE_URL,SUPABASE_KEY);
+const sb=createClient(SUPABASE_URL,SUPABASE_KEY,{
+  auth:{persistSession:true,storageKey:'sb-session',storage:window.localStorage}
+});
 
 let weekOffset=0;
 let allClients=[];
@@ -320,11 +322,22 @@ function renderDashboard(){
 function changeWeek(d){weekOffset+=d;renderDashboard();}
 
 (async()=>{
-  const {data:{session}}=await sb.auth.getSession();
+  // Try getting session multiple times
+  let session = null;
+  for(let i=0; i<5; i++){
+    const {data} = await sb.auth.getSession();
+    if(data?.session){ session = data.session; break; }
+    await new Promise(r=>setTimeout(r,500));
+  }
   document.getElementById('loadingOverlay').style.display='none';
-  if(!session?.user){window.location.href='index.html';return;}
-  if(session.user.email!==COACH_EMAIL){
-    document.getElementById('accessDenied').style.display='flex';return;
+  if(!session?.user){ window.location.href='index.html'; return; }
+  const userEmail = session.user.email.toLowerCase().trim();
+  const coachEmail = COACH_EMAIL.toLowerCase().trim();
+  if(userEmail !== coachEmail){
+    const ad = document.getElementById('accessDenied');
+    ad.style.display='flex';
+    ad.innerHTML += '<p style="color:#6b7bb0;font-size:11px;margin-top:10px">Detected: '+session.user.email+'</p>';
+    return;
   }
   document.getElementById('dashboardScreen').style.display='block';
   await loadDashboard(session.user);
