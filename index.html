@@ -317,7 +317,10 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
     </div>
     <div class="fg">
       <label>Password</label>
-      <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password"/>
+      <div style="position:relative">
+        <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" style="padding-right:48px"/>
+        <button onclick="toggleAuthPass()" id="authEye" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0">👁</button>
+      </div>
     </div>
     <button class="btn-auth" id="authBtn" onclick="handleAuth()">SIGN IN</button>
     <div class="auth-msg" id="authMsg"></div>
@@ -595,6 +598,13 @@ async function handleAuth(){
     await initApp(data.user);
   }
 }
+function toggleAuthPass(){
+  const p=document.getElementById('authPass');
+  const b=document.getElementById('authEye');
+  if(p.type==='password'){p.type='text';b.textContent='🙈';}
+  else{p.type='password';b.textContent='👁';}
+}
+
 async function forgotPassword(){
   const email=document.getElementById('authEmail').value.trim();
   const msg=document.getElementById('authMsg');
