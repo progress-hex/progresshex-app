@@ -428,9 +428,12 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
     <!-- COACH PAGE -->
     <div class="page" id="pageCoach">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px">🎯 COACH DASHBOARD</div>
-          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px" id="coachWeekLbl"></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button onclick="showPage('tracker')" style="background:var(--navy2);border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:9px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px">← Back</button>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px">🎯 COACH DASHBOARD</div>
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px" id="coachWeekLbl"></div>
+          </div>
         </div>
         <div style="display:flex;gap:8px">
           <button onclick="changeCoachWeek(-1)" style="background:var(--navy2);border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:18px">‹</button>
@@ -810,57 +813,71 @@ async function renderCoachDashboard(){
   const days=getWeek(coachWeekOffset), wKeys=days.map(dk);
   document.getElementById('coachWeekLbl').textContent=`${fd(days[0])} – ${fd(days[6])}`;
 
-  // Load all clients
-  const {data:clients} = await sb.from('coach_clients').select('*');
-  
-  // Load all entries for this week from all users
-  const {data:allEntries} = await sb.from('entries').select('*').in('day', wKeys);
+  // Load all entries for this week + all entries ever (for user discovery)
+  const {data:weekEntries} = await sb.from('entries').select('*').in('day', wKeys);
+  const {data:allEntries} = await sb.from('entries').select('user_id,task').limit(1000);
   const {data:allRefs} = await sb.from('reflections').select('*');
-  const {data:allUsers} = await sb.auth.admin?.listUsers?.() || {data:null};
+  const {data:allCats} = await sb.from('categories').select('user_id,name').limit(1000);
 
   loading.style.display='none';
 
-  if(!allEntries || allEntries.length===0){
-    grid.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--muted)"><div style="font-size:48px;margin-bottom:16px">👥</div><div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;margin-bottom:8px">NO CLIENT DATA YET</div><div style="font-size:13px">Share the app link with your clients to get started</div><div style="margin-top:20px;padding:16px;background:var(--navy2);border:1px solid var(--border);border-radius:12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--orange)">timesaverhex.netlify.app</div></div>`;
+  // Build a map of all known users from entries
+  const userMap={};
+  
+  // Add users from all-time entries
+  (allEntries||[]).forEach(e=>{
+    if(!userMap[e.user_id]) userMap[e.user_id]={userId:e.user_id, name:'Client', weekEntries:[]};
+  });
+
+  // Add users from categories (catches users with no entries)
+  (allCats||[]).forEach(c=>{
+    if(!userMap[c.user_id]) userMap[c.user_id]={userId:c.user_id, name:'Client', weekEntries:[]};
+  });
+
+  // Add this week's entries to each user
+  (weekEntries||[]).forEach(e=>{
+    if(!userMap[e.user_id]) userMap[e.user_id]={userId:e.user_id, name:'Client', weekEntries:[]};
+    userMap[e.user_id].weekEntries.push(e);
+    // Try to get name from entry metadata
+    if(e.user_name) userMap[e.user_id].name=e.user_name;
+  });
+
+  // Remove coach from the list
+  delete userMap[user.id];
+
+  if(Object.keys(userMap).length===0){
+    grid.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--muted)"><div style="font-size:48px;margin-bottom:16px">👥</div><div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;margin-bottom:8px">NO CLIENTS YET</div><div style="font-size:13px">Share the app link with your clients to get started</div><div style="margin-top:20px;padding:16px;background:var(--navy2);border:1px solid var(--border);border-radius:12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--orange)">timesaverhex.netlify.app</div></div>`;
     return;
   }
 
-  // Group entries by user
-  const userMap={};
-  allEntries.forEach(e=>{
-    if(!userMap[e.user_id]) userMap[e.user_id]={entries:[],name:e.user_name||'Unknown'};
-    userMap[e.user_id].entries.push(e);
-  });
-
-  // Get names from categories table user metadata
-  const {data:catData} = await sb.from('categories').select('user_id').limit(1000);
-
   Object.entries(userMap).forEach(([userId, data])=>{
-    const ents=data.entries;
+    const ents=data.weekEntries;
     const tot=ents.reduce((s,e)=>s+(e.duration_mins||0),0);
     const prod=ents.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
     const waste=ents.filter(e=>e.waste==='waste').reduce((s,e)=>s+(e.duration_mins||0),0);
     const eff=tot>0?Math.round(prod/tot*100):0;
     const ref=allRefs?.find(r=>r.user_id===userId&&r.week_of===wKeys[0]);
-    const run5k=ents.filter(e=>(e.cat_name||'').toLowerCase().includes('5km')||((e.cat_name||'').toLowerCase().includes('run'))).length;
+    const run5k=ents.filter(e=>(e.cat_name||'').toLowerCase().includes('5km')||(e.cat_name||'').toLowerCase().includes('run')).length;
+    const noActivity=ents.length===0;
 
-    // Traffic light
-    const light = eff>=70?'🟢':eff>=40?'🟡':'🔴';
-    const effColor = eff>=70?'var(--green)':eff>=40?'var(--yellow)':'var(--red)';
+    const light=noActivity?'⚪':eff>=70?'🟢':eff>=40?'🟡':'🔴';
+    const effColor=eff>=70?'var(--green)':eff>=40?'var(--yellow)':'var(--red)';
+    const displayName=data.name==='Client'?`Client (${userId.substring(0,8)}...)`:data.name;
 
     const card=document.createElement('div');
-    card.style.cssText='background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;';
+    card.style.cssText=`background:var(--navy2);border:1px solid ${noActivity?'var(--border)':'var(--border)'};border-radius:14px;padding:20px;margin-bottom:14px;`;
     card.innerHTML=`
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--og);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff">${(data.name[0]||'?').toUpperCase()}</div>
+          <div style="width:44px;height:44px;border-radius:50%;background:var(--og);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff">${(displayName[0]||'?').toUpperCase()}</div>
           <div>
-            <div style="font-size:15px;font-weight:600">${data.name}</div>
-            <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${ents.length} entries this week</div>
+            <div style="font-size:15px;font-weight:600">${displayName}</div>
+            <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${noActivity?'No entries this week':`${ents.length} entries this week`}</div>
           </div>
         </div>
         <div style="font-size:28px">${light}</div>
       </div>
+      ${noActivity?`<div style="background:rgba(107,123,176,0.1);border:1px solid var(--border2);border-radius:10px;padding:12px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:1px">⚠ NO ACTIVITY THIS WEEK</div>`:`
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
         <div style="background:var(--navy3);border-radius:10px;padding:10px;text-align:center">
           <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:3px">TOTAL</div>
@@ -885,6 +902,7 @@ async function renderCoachDashboard(){
         ${ref.went_well?`<div style="font-size:12px;color:var(--text2);margin-bottom:4px"><span style="color:var(--green)">✓</span> ${ref.went_well}</div>`:''}
         ${ref.next_week?`<div style="font-size:12px;color:var(--text2)"><span style="color:var(--orange)">→</span> ${ref.next_week}</div>`:''}
       </div>`:`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:8px 0">⚠ No week review submitted</div>`}
+      `}
     `;
     grid.appendChild(card);
   });
@@ -957,7 +975,8 @@ async function saveEntry(){
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
   if(dur<=0){alert('End time must be after start time');return;}
   const cat=cats.find(c=>c.id===catId);
-  const payload={user_id:user.id,task,day,cat_id:catId,cat_name:cat?.name||'',notes,waste:selWaste,start_h:sv.h,start_m:sv.m,end_h:ev.h,end_m:ev.m,duration_mins:dur};
+  const clientName=user.user_metadata?.full_name||user.email;
+  const payload={user_id:user.id,user_name:clientName,task,day,cat_id:catId,cat_name:cat?.name||'',notes,waste:selWaste,start_h:sv.h,start_m:sv.m,end_h:ev.h,end_m:ev.m,duration_mins:dur};
   if(editingId){
     const{data}=await sb.from('entries').update(payload).eq('id',editingId).select();
     entries=entries.map(e=>e.id===editingId?(data?.[0]||{...e,...payload}):e);
