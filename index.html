@@ -68,7 +68,8 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 
 /* ── BOTTOM NAV ── */
 .bottomnav{background:var(--navy2);border-top:1px solid var(--border);display:flex;flex-shrink:0;padding-bottom:var(--safe-bottom);}
-.bn-btn{flex:1;background:none;border:none;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;gap:3px;transition:color 0.15s;position:relative;}
+.bn-btn{flex:1;background:none;border:none;color:var(--muted);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;gap:3px;transition:color 0.15s;position:relative;}
+.bn-btn:not([style*="display:none"]){display:flex;}
 .bn-btn.active{color:var(--orange);}
 .bn-btn.active::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--orange);border-radius:0 0 2px 2px;}
 .bn-icon{font-size:20px;line-height:1;}
@@ -251,7 +252,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .ds-add-cat{width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:7px;border-radius:7px;cursor:pointer;font-size:11px;margin-top:6px;}
   .ds-add-cat:hover{border-color:var(--orange);color:var(--orange);}
   .ds-export{width:100%;background:var(--og);border:none;color:#fff;padding:8px;border-radius:7px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;cursor:pointer;margin-top:6px;}
-  .coach-lnk{display:block;text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-decoration:none;padding:8px;border:1px solid var(--border2);border-radius:6px;margin-top:8px;letter-spacing:1px;}
+  .coach-lnk{text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-decoration:none;padding:8px;border:1px solid var(--border2);border-radius:6px;margin-top:8px;letter-spacing:1px;}
   .coach-lnk:hover{border-color:var(--orange);color:var(--orange);}
   /* Desktop right panel */
   .rp-h{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
@@ -485,7 +486,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
       <div class="mfg" style="margin:0"><label>End Time</label><select id="endIn" onchange="calcDur()"></select></div>
     </div>
     <div class="dur-badge" id="durBadge" style="margin-bottom:14px">Duration: —</div>
-    <div class="mfg"><label>Notes</label><textarea id="notesIn" placeholder="Optional notes..."></textarea></div>
+    <div class="mfg"><label>Notes <span style="color:var(--orange)">*</span></label><textarea id="notesIn" placeholder="Required — describe what you actually did..."></textarea></div>
     <div class="mfg"><label>Time Quality</label><div class="waste-opts">
       <div class="waste-opt sel-good" data-v="good" onclick="setWaste('good')">✓ Good</div>
       <div class="waste-opt" data-v="mixed" onclick="setWaste('mixed')">~ Mixed</div>
@@ -1200,6 +1201,7 @@ async function saveEntry(){
   const sv=JSON.parse(document.getElementById('startIn').value||'null');
   const ev=JSON.parse(document.getElementById('endIn').value||'null');
   if(!task||!day||!sv||!ev)return;
+  if(!notes){alert('Please add a note — describe what you actually did.');return;}
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
   if(dur<=0){alert('End time must be after start time');return;}
   if(!editingId && isLocked(day)){
