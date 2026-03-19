@@ -1093,6 +1093,8 @@ async function saveEntry(){
 }
 async function deleteEntry(){
   if(!editingId)return;
+  const entry=entries.find(e=>e.id===editingId);
+  if(entry && isLocked(entry.day)){alert('🔒 This entry is locked and cannot be deleted.');return;}
   await sb.from('entries').delete().eq('id',editingId);
   entries=entries.filter(e=>e.id!==editingId);
   closeEntry();render();
