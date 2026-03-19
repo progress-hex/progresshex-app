@@ -862,7 +862,7 @@ async function renderCoachDashboard(){
 
   // Load profiles (all registered clients), entries and reflections in parallel
   const [{data:profiles},{data:weekEntries},{data:allRefs}] = await Promise.all([
-    sb.from('profiles').select('*').neq('user_id', user.id),
+    sb.from('profiles').select('*'),
     sb.from('entries').select('*').in('day', wKeys),
     sb.from('reflections').select('*')
   ]);
