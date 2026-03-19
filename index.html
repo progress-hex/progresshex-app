@@ -1104,6 +1104,15 @@ function setWaste(v){
 }
 function openAddEntry(di){
   editingId=null;selWaste='good';
+  // Reset all form fields to editable state
+  document.getElementById('taskIn').disabled=false;
+  document.getElementById('notesIn').disabled=false;
+  document.getElementById('catIn').disabled=false;
+  document.getElementById('startIn').disabled=false;
+  document.getElementById('endIn').disabled=false;
+  document.querySelectorAll('.waste-opt').forEach(b=>b.style.pointerEvents='auto');
+  document.getElementById('entryOverlay').querySelector('.btn-save').style.display='flex';
+  document.getElementById('entryOverlay').querySelector('.btn-cancel').textContent='Cancel';
   document.getElementById('sheetTitle').textContent='Log Time';
   document.getElementById('taskIn').value='';
   document.getElementById('notesIn').value='';
