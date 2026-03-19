@@ -697,9 +697,11 @@ function renderMobile(){
     const cat=cats.find(c=>c.id===e.cat_id);
     const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';
     const tagTxt=e.waste==='waste'?'Waste':e.waste==='mixed'?'Mixed':'Good';
+    const locked=isLocked(e.day);
     const card=document.createElement('div');card.className='entry-card';
     card.style.borderLeftColor=cat?cat.color:'var(--border)';
-    card.innerHTML=`<div class="ec-task">${e.task}</div><div class="ec-row"><span class="ec-time">${ft(e.start_h,e.start_m)} – ${ft(e.end_h,e.end_m)}</span><span class="ec-dur">${mh(e.duration_mins||0)}h</span><span class="tag ${tagCls}">${tagTxt}</span>${cat?`<span class="ec-cat">${cat.name}</span>`:''}</div>`;
+    if(locked) card.style.opacity='0.8';
+    card.innerHTML=`<div class="ec-task">${locked?'🔒 ':''}${e.task}</div><div class="ec-row"><span class="ec-time">${ft(e.start_h,e.start_m)} – ${ft(e.end_h,e.end_m)}</span><span class="ec-dur">${mh(e.duration_mins||0)}h</span><span class="tag ${tagCls}">${tagTxt}</span>${cat?`<span class="ec-cat">${cat.name}</span>`:''}</div>`;
     card.onclick=()=>openEditEntry(e.id,activeDayIdx);
     cont.appendChild(card);
   });
@@ -769,9 +771,11 @@ function renderDesktop(){
     de.forEach(entry=>{
       const cat=cats.find(c=>c.id===entry.cat_id);
       const tagCls=entry.waste==='waste'?'tag-waste':entry.waste==='mixed'?'tag-mixed':'tag-good';
+      const locked=isLocked(entry.day);
       const card=document.createElement('div');card.className='d-entry';
       card.style.borderLeftColor=cat?cat.color:'var(--border)';
-      card.innerHTML=`<div class="d-task">${entry.task}</div><div class="d-meta"><span class="d-time">${ft(entry.start_h,entry.start_m)}–${ft(entry.end_h,entry.end_m)}</span><span class="d-dur">${mh(entry.duration_mins||0)}h</span><span class="tag ${tagCls}" style="font-size:8px">${entry.waste==='waste'?'Waste':entry.waste==='mixed'?'Mixed':'Good'}</span></div>`;
+      if(locked) card.style.opacity='0.75';
+      card.innerHTML=`<div class="d-task">${locked?'🔒 ':''}${entry.task}</div><div class="d-meta"><span class="d-time">${ft(entry.start_h,entry.start_m)}–${ft(entry.end_h,entry.end_m)}</span><span class="d-dur">${mh(entry.duration_mins||0)}h</span><span class="tag ${tagCls}" style="font-size:8px">${entry.waste==='waste'?'Waste':entry.waste==='mixed'?'Mixed':'Good'}</span></div>`;
       card.onclick=()=>openEditEntry(entry.id,i);
       deEl.appendChild(card);
     });
@@ -1011,8 +1015,50 @@ function openAddEntry(di){
   document.getElementById('entryOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('taskIn').focus(),300);
 }
+// ── ENTRY LOCKING ──
+function isLocked(dayStr){
+  // An entry is locked if the day is before today
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const entryDate = new Date(dayStr);
+  entryDate.setHours(0,0,0,0);
+  return entryDate < today;
+}
+
 function openEditEntry(id,di){
   const e=entries.find(x=>x.id===id);if(!e)return;
+  
+  // If locked — show read only view
+  if(isLocked(e.day)){
+    editingId=null;
+    document.getElementById('sheetTitle').textContent='🔒 Locked Entry';
+    document.getElementById('taskIn').value=e.task;
+    document.getElementById('notesIn').value=e.notes||'';
+    document.getElementById('taskIn').disabled=true;
+    document.getElementById('notesIn').disabled=true;
+    document.getElementById('catIn').disabled=true;
+    document.getElementById('startIn').disabled=true;
+    document.getElementById('endIn').disabled=true;
+    document.querySelectorAll('.waste-opt').forEach(b=>b.style.pointerEvents='none');
+    document.getElementById('delBtn').style.display='none';
+    document.getElementById('entryOverlay').querySelector('.btn-save').style.display='none';
+    document.getElementById('entryOverlay').querySelector('.btn-cancel').textContent='Close';
+    populateDaySelect(di,e.day);populateCatSelect(e.cat_id);
+    populateTimes(e.start_h,e.start_m,e.end_h,e.end_m);setWaste(e.waste||'good');
+    document.getElementById('entryOverlay').classList.add('open');
+    return;
+  }
+
+  // Unlock form fields in case previously locked view was shown
+  document.getElementById('taskIn').disabled=false;
+  document.getElementById('notesIn').disabled=false;
+  document.getElementById('catIn').disabled=false;
+  document.getElementById('startIn').disabled=false;
+  document.getElementById('endIn').disabled=false;
+  document.querySelectorAll('.waste-opt').forEach(b=>b.style.pointerEvents='auto');
+  document.getElementById('entryOverlay').querySelector('.btn-save').style.display='flex';
+  document.getElementById('entryOverlay').querySelector('.btn-cancel').textContent='Cancel';
+
   editingId=id;selWaste=e.waste||'good';
   document.getElementById('sheetTitle').textContent='Edit Entry';
   document.getElementById('taskIn').value=e.task;
