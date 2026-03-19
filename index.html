@@ -641,9 +641,7 @@ async function initApp(u){
     document.getElementById('coachMenuBtn').style.display='block';
   }
   // Always upsert profile so coach dashboard always has latest name
-  if(!isCoach){
-    await sb.from('profiles').upsert({user_id:u.id,full_name:name,email:u.email,last_login:new Date().toISOString()},{onConflict:'user_id'});
-  }
+  await sb.from('profiles').upsert({user_id:u.id,full_name:name,email:u.email,last_login:new Date().toISOString()},{onConflict:'user_id'});
   await Promise.all([loadCats(),loadEntries(),loadRefs()]);
   if(cats.length===0) await seedCats();
   render();
