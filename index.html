@@ -1176,6 +1176,10 @@ async function saveEntry(){
   if(!task||!day||!sv||!ev)return;
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
   if(dur<=0){alert('End time must be after start time');return;}
+  if(!editingId && isLocked(day)){
+    const confirm=window.confirm('⚠️ You are adding an entry to a past day.\n\nOnce saved it cannot be edited or deleted — it will be permanently locked.\n\nAre you sure you want to continue?');
+    if(!confirm) return;
+  }
   const cat=cats.find(c=>c.id===catId);
   const clientName=user.user_metadata?.full_name||user.email;
   const payload={user_id:user.id,user_name:clientName,task,day,cat_id:catId,cat_name:cat?.name||'',notes,waste:selWaste,start_h:sv.h,start_m:sv.m,end_h:ev.h,end_m:ev.m,duration_mins:dur};
