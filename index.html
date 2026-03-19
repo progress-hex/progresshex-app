@@ -1174,7 +1174,22 @@ function openEditEntry(id,di){
   populateTimes(e.start_h,e.start_m,e.end_h,e.end_m);setWaste(e.waste||'good');
   document.getElementById('entryOverlay').classList.add('open');
 }
-function closeEntry(){document.getElementById('entryOverlay').classList.remove('open');editingId=null;}
+function closeEntry(){
+  document.getElementById('entryOverlay').classList.remove('open');
+  editingId=null;
+  // Always reset form to fully editable state on close
+  document.getElementById('taskIn').disabled=false;
+  document.getElementById('notesIn').disabled=false;
+  document.getElementById('catIn').disabled=false;
+  document.getElementById('startIn').disabled=false;
+  document.getElementById('endIn').disabled=false;
+  document.querySelectorAll('.waste-opt').forEach(b=>b.style.pointerEvents='auto');
+  const saveBtn=document.getElementById('entryOverlay').querySelector('.btn-save');
+  if(saveBtn) saveBtn.style.display='flex';
+  document.getElementById('entryOverlay').querySelector('.btn-cancel').textContent='Cancel';
+  document.getElementById('sheetTitle').textContent='Log Time';
+  document.getElementById('delBtn').style.display='none';
+}
 async function saveEntry(){
   const task=document.getElementById('taskIn').value.trim();
   const day=document.getElementById('dayIn').value;
