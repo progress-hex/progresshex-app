@@ -885,7 +885,7 @@ async function renderCoachDashboard(){
   // Summary bar
   const totalClients=profiles.length;
   const activeClients=(profiles||[]).filter(p=>(weekEntries||[]).some(e=>e.user_id===p.user_id)).length;
-  grid.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+  grid.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
     <div style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
       <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px">TOTAL CLIENTS</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px">${totalClients}</div>
@@ -898,7 +898,18 @@ async function renderCoachDashboard(){
       <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px">GONE QUIET</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--red)">${totalClients-activeClients}</div>
     </div>
-  </div><div id="coachCards"></div>`;
+  </div>
+
+  <!-- Filter buttons -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button onclick="setCoachFilter('all')" id="cf_all" style="padding:8px 16px;border-radius:20px;border:1px solid var(--orange);background:var(--orange);color:#fff;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">ALL</button>
+    <button onclick="setCoachFilter('green')" id="cf_green" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">🟢 GOOD</button>
+    <button onclick="setCoachFilter('amber')" id="cf_amber" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">🟡 MEDIUM</button>
+    <button onclick="setCoachFilter('red')" id="cf_red" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">🔴 POOR</button>
+    <button onclick="setCoachFilter('inactive')" id="cf_inactive" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">⚪ INACTIVE</button>
+  </div>
+
+  <div id="coachCards"></div>`;
 
   const cardsEl=document.getElementById('coachCards');
 
@@ -926,6 +937,8 @@ async function renderCoachDashboard(){
     const cardId='cc_'+userId.replace(/-/g,'');
 
     const card=document.createElement('div');
+    const cardStatus=noActivity?'inactive':eff>=70?'green':eff>=40?'amber':'red';
+    card.dataset.coachCard=cardStatus;
     card.style.cssText=`background:var(--navy2);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;border-left:4px solid ${noActivity?'var(--border)':eff>=70?'var(--green)':eff>=40?'var(--yellow)':'var(--red)'};overflow:hidden;`;
     
     // Quick view header — always visible
@@ -1035,6 +1048,24 @@ function toggleCoachCard(id){
   const open=el.style.display==='none';
   el.style.display=open?'block':'none';
   if(arr) arr.style.transform=open?'rotate(90deg)':'rotate(0deg)';
+}
+
+let coachFilter='all';
+function setCoachFilter(f){
+  coachFilter=f;
+  ['all','green','amber','red','inactive'].forEach(k=>{
+    const btn=document.getElementById('cf_'+k);
+    if(!btn)return;
+    const active=k===f;
+    btn.style.background=active?'var(--orange)':'none';
+    btn.style.color=active?'#fff':'var(--muted)';
+    btn.style.borderColor=active?'var(--orange)':'var(--border2)';
+  });
+  // Show/hide cards based on filter
+  document.querySelectorAll('[data-coach-card]').forEach(card=>{
+    const status=card.dataset.coachCard;
+    card.style.display=(f==='all'||status===f)?'block':'none';
+  });
 }
 
 // ── ENTRY MODAL ──
