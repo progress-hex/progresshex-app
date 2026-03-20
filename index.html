@@ -70,7 +70,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 /* ── BOTTOM NAV ── */
 .bottomnav{background:var(--navy2);border-top:1px solid var(--border);display:flex;flex-shrink:0;padding-bottom:var(--safe-bottom);}
 .bn-btn{flex:1;background:none;border:none;color:var(--muted);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;gap:3px;transition:color 0.15s;position:relative;}
-.bn-btn:not([style*="display:none"]){display:flex;}
+.bn-btn{display:flex;}.bn-btn.hidden{display:none!important;}
 .bn-btn.active{color:var(--orange);}
 .bn-btn.active::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--orange);border-radius:0 0 2px 2px;}
 .bn-icon{font-size:20px;line-height:1;}
@@ -465,7 +465,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
     <button class="bn-btn" id="bn-menu" onclick="showPage('menu')">
       <div class="bn-icon">☰</div><div class="bn-label">Menu</div>
     </button>
-    <button class="bn-btn" id="bn-coach" onclick="showPage('coach')" style="display:none">
+    <button class="bn-btn hidden" id="bn-coach" onclick="showPage('coach')">
       <div class="bn-icon">🎯</div><div class="bn-label">Coach</div>
     </button>
   </div>
@@ -639,7 +639,7 @@ async function initApp(u){
   document.getElementById('muAvatar').textContent=(name[0]||'U').toUpperCase();
   if(isCoach){
     document.getElementById('coachLnk').style.display='block';
-    document.getElementById('bn-coach').style.display='flex';
+    document.getElementById('bn-coach').classList.remove('hidden');
     document.getElementById('coachMenuBtn').style.display='block';
   }
   // Always upsert profile so coach dashboard always has latest name
@@ -1195,6 +1195,8 @@ function closeEntry(){
   document.getElementById('delBtn').style.display='none';
 }
 async function saveEntry(){
+  const saveBtn=document.getElementById('entryOverlay').querySelector('.btn-save');
+  if(saveBtn.disabled) return;
   const task=document.getElementById('taskIn').value.trim();
   const day=document.getElementById('dayIn').value;
   const catId=document.getElementById('catIn').value;
@@ -1206,20 +1208,26 @@ async function saveEntry(){
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
   if(dur<=0){alert('End time must be after start time');return;}
   if(!editingId && isLocked(day)){
-    const confirm=window.confirm('⚠️ You are adding an entry to a past day.\n\nOnce saved it cannot be edited or deleted — it will be permanently locked.\n\nAre you sure you want to continue?');
-    if(!confirm) return;
+    const ok=window.confirm('⚠️ You are adding an entry to a past day.\n\nOnce saved it cannot be edited or deleted — it will be permanently locked.\n\nAre you sure you want to continue?');
+    if(!ok) return;
   }
-  const cat=cats.find(c=>c.id===catId);
-  const clientName=user.user_metadata?.full_name||user.email;
-  const payload={user_id:user.id,user_name:clientName,task,day,cat_id:catId,cat_name:cat?.name||'',notes,waste:selWaste,start_h:sv.h,start_m:sv.m,end_h:ev.h,end_m:ev.m,duration_mins:dur};
-  if(editingId){
-    const{data}=await sb.from('entries').update(payload).eq('id',editingId).select();
-    entries=entries.map(e=>e.id===editingId?(data?.[0]||{...e,...payload}):e);
-  } else {
-    const{data}=await sb.from('entries').insert(payload).select();
-    if(data?.[0]) entries.push(data[0]);
+  saveBtn.disabled=true;saveBtn.textContent='Saving...';saveBtn.style.opacity='0.6';
+  try{
+    const cat=cats.find(c=>c.id===catId);
+    const clientName=user.user_metadata?.full_name||user.email;
+    const payload={user_id:user.id,user_name:clientName,task,day,cat_id:catId,cat_name:cat?.name||'',notes,waste:selWaste,start_h:sv.h,start_m:sv.m,end_h:ev.h,end_m:ev.m,duration_mins:dur};
+    if(editingId){
+      const{data}=await sb.from('entries').update(payload).eq('id',editingId).select();
+      entries=entries.map(e=>e.id===editingId?(data?.[0]||{...e,...payload}):e);
+    } else {
+      const{data}=await sb.from('entries').insert(payload).select();
+      if(data?.[0]) entries.push(data[0]);
+    }
+    closeEntry();render();
+  }catch(err){
+    saveBtn.disabled=false;saveBtn.textContent='Save';saveBtn.style.opacity='1';
+    alert('Save failed — please try again.');
   }
-  closeEntry();render();
 }
 async function deleteEntry(){
   if(!editingId)return;
