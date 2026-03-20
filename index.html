@@ -1201,6 +1201,7 @@ function closeEntry(){
 }
 async function saveEntry(){
   const saveBtn=document.getElementById('entryOverlay').querySelector('.btn-save');
+  const resetBtn=()=>{saveBtn.disabled=false;saveBtn.textContent='Save';saveBtn.style.opacity='1';};
   if(saveBtn.disabled) return;
   const task=document.getElementById('taskIn').value.trim();
   const day=document.getElementById('dayIn').value;
@@ -1208,13 +1209,13 @@ async function saveEntry(){
   const notes=document.getElementById('notesIn').value.trim();
   const sv=JSON.parse(document.getElementById('startIn').value||'null');
   const ev=JSON.parse(document.getElementById('endIn').value||'null');
-  if(!task||!day||!sv||!ev)return;
-  if(!notes){alert('Please add a note — describe what you actually did.');return;}
+  if(!task||!day||!sv||!ev){resetBtn();return;}
+  if(!notes){alert('Please add a note — describe what you actually did.');resetBtn();return;}
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
-  if(dur<=0){alert('End time must be after start time');return;}
+  if(dur<=0){alert('End time must be after start time');resetBtn();return;}
   if(!editingId && isLocked(day)){
     const ok=window.confirm('⚠️ You are adding an entry to a past day.\n\nOnce saved it cannot be edited or deleted — it will be permanently locked.\n\nAre you sure you want to continue?');
-    if(!ok) return;
+    if(!ok){resetBtn();return;}
   }
   saveBtn.disabled=true;saveBtn.textContent='Saving...';saveBtn.style.opacity='0.6';
   try{
@@ -1230,7 +1231,7 @@ async function saveEntry(){
     }
     closeEntry();render();
   }catch(err){
-    saveBtn.disabled=false;saveBtn.textContent='Save';saveBtn.style.opacity='1';
+    resetBtn();
     alert('Save failed — please try again.');
   }
 }
