@@ -1194,7 +1194,7 @@ function closeEntry(){
   document.getElementById('endIn').disabled=false;
   document.querySelectorAll('.waste-opt').forEach(b=>b.style.pointerEvents='auto');
   const saveBtn=document.getElementById('entryOverlay').querySelector('.btn-save');
-  if(saveBtn) saveBtn.style.display='flex';
+  if(saveBtn){saveBtn.style.display='flex';saveBtn.disabled=false;saveBtn.textContent='Save';saveBtn.style.opacity='1';}
   document.getElementById('entryOverlay').querySelector('.btn-cancel').textContent='Cancel';
   document.getElementById('sheetTitle').textContent='Log Time';
   document.getElementById('delBtn').style.display='none';
