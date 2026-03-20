@@ -317,16 +317,16 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
     </div>
     <div id="nameGroup" class="fg" style="display:none">
       <label>Your Name</label>
-      <input type="text" id="authName" placeholder="e.g. Dean Barlow" autocomplete="name" onkeydown="if(event.key==='Enter'){document.getElementById('authEmail').focus();}"/>
+      <input type="text" id="authName" placeholder="e.g. Dean Barlow" autocomplete="name"/>
     </div>
     <div class="fg">
       <label>Email</label>
-      <input type="email" id="authEmail" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter'){document.getElementById('authPass').focus();}"/>
+      <input type="email" id="authEmail" placeholder="your@email.com" autocomplete="email"/>
     </div>
     <div class="fg">
       <label>Password</label>
       <div style="position:relative">
-        <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" style="padding-right:48px" onkeydown="if(event.key==='Enter'){handleAuth();}"/>
+        <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password" style="padding-right:48px"/>
         <button onclick="toggleAuthPass()" id="authEye" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;width:24px;height:24px">
           <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
@@ -485,15 +485,15 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   <div class="sheet">
     <div class="sheet-handle"></div>
     <h2 id="sheetTitle">Log Time</h2>
-    <div class="mfg"><label>Task / Activity</label><input type="text" id="taskIn" placeholder="e.g. Client coaching call" onkeydown="if(event.key==='Enter'){document.getElementById('notesIn').focus();}"/></div>
+    <div class="mfg"><label>Task / Activity</label><input type="text" id="taskIn" placeholder="e.g. Client coaching call" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('catIn').focus();}"/></div>
     <div class="mfg"><label>Day</label><select id="dayIn"></select></div>
-    <div class="mfg"><label>Category</label><select id="catIn"></select></div>
+    <div class="mfg"><label>Category</label><select id="catIn" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('startIn').focus();}"></select></div>
     <div class="time-row">
-      <div class="mfg" style="margin:0"><label>Start Time</label><select id="startIn" onchange="calcDur()"></select></div>
-      <div class="mfg" style="margin:0"><label>End Time</label><select id="endIn" onchange="calcDur()"></select></div>
+      <div class="mfg" style="margin:0"><label>Start Time</label><select id="startIn" onchange="calcDur()" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('endIn').focus();}"></select></div>
+      <div class="mfg" style="margin:0"><label>End Time</label><select id="endIn" onchange="calcDur()" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('notesIn').focus();}"></select></div>
     </div>
     <div class="dur-badge" id="durBadge" style="margin-bottom:14px">Duration: —</div>
-    <div class="mfg"><label>Notes <span style="color:var(--orange)">*</span></label><textarea id="notesIn" placeholder="Required — describe what you actually did..." onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){saveEntry();}"></textarea></div>
+    <div class="mfg"><label>Notes <span style="color:var(--orange)">*</span></label><textarea id="notesIn" placeholder="Required — describe what you actually did..." onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();saveEntry();}"></textarea></div>
     <div class="mfg"><label>Time Quality</label><div class="waste-opts">
       <div class="waste-opt sel-good" data-v="good" onclick="setWaste('good')">✓ Good</div>
       <div class="waste-opt" data-v="mixed" onclick="setWaste('mixed')">~ Mixed</div>
