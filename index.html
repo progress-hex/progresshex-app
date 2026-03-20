@@ -1333,15 +1333,43 @@ function exportToExcel(){
   const weekOf=dk(days[0]),clientName=user.user_metadata?.full_name||user.email;
   const tot=wEnt.reduce((s,e)=>s+(e.duration_mins||0),0);
   const prod=wEnt.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
-  const waste=wEnt.filter(e=>e.waste==='waste').reduce((s,e)=>s+(e.duration_mins||0),0);
   const eff=tot>0?Math.round(prod/tot*100):0;
-  const headers=['Client Name','Week Of','Day','Date','Category','Efficiency','Duration (mins)','Start Time','End Time','Task','Notes'];
-  const rows=wEnt.sort((a,b)=>{const di=wKeys.indexOf(a.day)-wKeys.indexOf(b.day);return di!==0?di:toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m);}).map(e=>[clientName,weekOf,DAYS_SHORT[wKeys.indexOf(e.day)]||'',e.day,e.cat_name||'',e.waste||'good',e.duration_mins||0,ft(e.start_h,e.start_m),ft(e.end_h,e.end_m),(e.task||'').replace(/"/g,"'"),(e.notes||'').replace(/"/g,"'")]);
-  const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><style>body{font-family:Arial;font-size:10pt}.banner{background:#0E1230;color:#fff;font-weight:bold;font-size:14pt;text-align:center;padding:10px}.sub{background:#1A2550;color:#C8D0E8;font-size:8pt;text-align:center;padding:4px}th{background:#1A2550;color:#fff;font-weight:bold;padding:6px 10px;font-size:9pt;border:1px solid #D0D8EE;text-align:center}td{padding:5px 9px;font-size:9pt;border:1px solid #D0D8EE}tr.alt td{background:#F4F6FB}</style></head><body><table width="100%"><tr><td class="banner">PROGRESS HEX · ${clientName}</td></tr><tr><td class="sub">Week of ${weekOf}</td></tr></table><table width="100%"><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>${rows.map((r,i)=>`<tr${i%2===1?' class="alt"':''}>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</table></body></html>`;
-  const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`ProgressHEX_${clientName.replace(/\s+/g,'_')}_${weekOf}.xls`;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+
+  // ── Build worksheet data ──
+  const sorted=wEnt.sort((a,b)=>{const di=wKeys.indexOf(a.day)-wKeys.indexOf(b.day);return di!==0?di:toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m);});
+  const wsData=[
+    ['PROGRESS HEX – Weekly Time Report'],
+    [`Client: ${clientName}`],
+    [`Week of: ${weekOf}`,``,`Total: ${mh(tot)}h`,`Productive: ${mh(prod)}h`,`Efficiency: ${eff}%`],
+    [],
+    ['Day','Date','Start','End','Duration (mins)','Category','Efficiency','Task','Notes'],
+    ...sorted.map(e=>[
+      DAYS_SHORT[wKeys.indexOf(e.day)]||'',
+      e.day,
+      ft(e.start_h,e.start_m),
+      ft(e.end_h,e.end_m),
+      e.duration_mins||0,
+      e.cat_name||'',
+      e.waste||'good',
+      e.task||'',
+      e.notes||''
+    ])
+  ];
+
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(wsData);
+
+  // Column widths
+  ws['!cols']=[{wch:8},{wch:12},{wch:8},{wch:8},{wch:16},{wch:18},{wch:12},{wch:40},{wch:40}];
+
+  // Merge title row across all columns
+  ws['!merges']=[
+    {s:{r:0,c:0},e:{r:0,c:8}},
+    {s:{r:1,c:0},e:{r:1,c:8}}
+  ];
+
+  XLSX.utils.book_append_sheet(wb,ws,'Week Report');
+  XLSX.writeFile(wb,`ProgressHEX_${clientName.replace(/\s+/g,'_')}_${weekOf}.xlsx`);
 }
 
 // ── CLOSE OVERLAYS ON BG CLICK ──
