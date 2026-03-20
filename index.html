@@ -622,7 +622,12 @@ async function forgotPassword(){
 
 async function signOut(){
   await sb.auth.signOut();
-  entries=[];cats=[];refs={};
+  entries=[];cats=[];refs={};user=null;isCoach=false;
+  // Reset to tracker page and hide coach elements before next login
+  showPage('tracker');
+  document.getElementById('bn-coach').classList.add('hidden');
+  document.getElementById('coachLnk').style.display='none';
+  document.getElementById('coachMenuBtn').style.display='none';
   document.getElementById('app').style.display='none';
   document.getElementById('auth').style.display='flex';
 }
