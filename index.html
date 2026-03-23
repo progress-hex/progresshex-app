@@ -249,7 +249,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .ds-h:first-child{margin-top:0;}
   .ds-cat{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;margin-bottom:2px;}
   .ds-cat:hover{background:var(--navy3);}
-  .ds-cat.active{background:var(--navy3);border:1px solid var(--border);}
+  .ds-cat.active{background:rgba(255,107,26,0.12);border:1px solid rgba(255,107,26,0.4);}
   .ds-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
   .ds-name{flex:1;font-size:12px;color:var(--text2);}
   .ds-hrs{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
@@ -258,6 +258,8 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .ds-del:hover{color:var(--red) !important;}
   .ds-add-cat{width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:7px;border-radius:7px;cursor:pointer;font-size:11px;margin-top:6px;}
   .ds-add-cat:hover{border-color:var(--orange);color:var(--orange);}
+  .ds-clear-filter{width:100%;background:rgba(255,107,26,0.1);border:1px solid rgba(255,107,26,0.4);color:var(--orange);padding:7px;border-radius:7px;cursor:pointer;font-size:11px;margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:0.5px;}
+  .ds-clear-filter:hover{background:rgba(255,107,26,0.2);}
   .ds-export{width:100%;background:var(--og);border:none;color:#fff;padding:8px;border-radius:7px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;cursor:pointer;margin-top:6px;}
   .coach-lnk{text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-decoration:none;padding:8px;border:1px solid var(--border2);border-radius:6px;margin-top:8px;letter-spacing:1px;}
   .coach-lnk:hover{border-color:var(--orange);color:var(--orange);}
@@ -386,6 +388,9 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
       <div class="desktop-sidebar" id="deskSidebar">
         <div class="ds-h">Categories</div>
         <div id="deskCatList"></div>
+        <div id="deskClearFilter" style="display:none">
+          <button class="ds-clear-filter" onclick="clearCatFilter()">✕ Clear Filter</button>
+        </div>
         <button class="ds-add-cat" onclick="openAddCat()">+ Add Category</button>
         <div class="ds-h">Export</div>
         <button class="ds-export" onclick="exportToExcel()">⬇ Export to Excel</button>
@@ -596,7 +601,6 @@ async function handleAuth(){
     const{data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
     if(error){msg.textContent=error.message;msg.className='auth-msg error';return;}
     if(data?.user){
-      // Store profile immediately
       await sb.from('profiles').upsert({user_id:data.user.id,full_name:name,email:email,created_at:new Date().toISOString()},{onConflict:'user_id'});
       await initApp(data.user);
     } else {
@@ -628,8 +632,7 @@ async function forgotPassword(){
 
 async function signOut(){
   await sb.auth.signOut();
-  entries=[];cats=[];refs={};user=null;isCoach=false;
-  // Reset to tracker page and hide coach elements before next login
+  entries=[];cats=[];refs={};user=null;isCoach=false;catFilter=null;
   showPage('tracker');
   document.getElementById('bn-coach').classList.add('hidden');
   document.getElementById('coachLnk').style.display='none';
@@ -653,7 +656,6 @@ async function initApp(u){
     document.getElementById('bn-coach').classList.remove('hidden');
     document.getElementById('coachMenuBtn').style.display='block';
   }
-  // Always upsert profile so coach dashboard always has latest name
   await sb.from('profiles').upsert({user_id:u.id,full_name:name,email:u.email,last_login:new Date().toISOString()},{onConflict:'user_id'});
   await Promise.all([loadCats(),loadEntries(),loadRefs()]);
   if(cats.length===0) await seedCats();
@@ -676,17 +678,24 @@ function getWeek(off=0){
   return Array.from({length:7},(_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
 }
 
+// ── CATEGORY FILTER (desktop only) ──
+function clearCatFilter(){
+  catFilter=null;
+  render();
+}
+
 // ── RENDER (master) ──
 function render(){renderDesktop();renderMobile();renderStats();renderMenuCats();}
 
 // ── MOBILE RENDER ──
+// NOTE: Mobile NEVER uses catFilter — all entries always shown on mobile
 function renderMobile(){
   const days=getWeek(weekOffset), wKeys=days.map(dk);
   const wEnt=entries.filter(e=>wKeys.includes(e.day));
   const totalM=wEnt.reduce((s,e)=>s+(e.duration_mins||0),0);
   document.getElementById('mWeekLbl').textContent=`${fd(days[0])} – ${fd(days[6])}`;
   document.getElementById('mWeekTot').textContent=mh(totalM);
-  // Pills
+  // Pills — always show ALL entries per day, no filter
   const pills=document.getElementById('dayPills');pills.innerHTML='';
   days.forEach((d,i)=>{
     const de=wEnt.filter(e=>e.day===dk(d));
@@ -696,7 +705,7 @@ function renderMobile(){
     p.onclick=()=>{activeDayIdx=i;renderMobile();};
     pills.appendChild(p);
   });
-  // Entries for active day
+  // Entries for active day — NO catFilter applied here
   const dKey=dk(days[activeDayIdx]);
   const dayEnts=wEnt.filter(e=>e.day===dKey).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
   const cont=document.getElementById('mobileDayEntries');cont.innerHTML='';
@@ -761,16 +770,28 @@ function renderDesktop(){
   const tot=wEnt.reduce((s,e)=>s+(e.duration_mins||0),0);
   document.getElementById('weekLbl').textContent=`${fd(days[0])} – ${fd(days[6])}`;
   document.getElementById('weekTot').textContent=mh(tot);
+
+  // Show/hide clear filter button
+  const clearBtn=document.getElementById('deskClearFilter');
+  if(clearBtn) clearBtn.style.display=catFilter?'block':'none';
+
   // Sidebar cats
   const cl=document.getElementById('deskCatList');cl.innerHTML='';
   cats.forEach(cat=>{
     const m=wEnt.filter(e=>e.cat_id===cat.id).reduce((s,e)=>s+(e.duration_mins||0),0);
-    const div=document.createElement('div');div.className='ds-cat'+(catFilter===cat.id?' active':'');
-    div.innerHTML=`<div class="ds-dot" style="background:${cat.color}"></div><div class="ds-name">${cat.name}</div><div class="ds-hrs">${m>0?mh(m)+'h':''}</div><button class="ds-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
-    div.onclick=(e)=>{if(e.target.classList.contains('ds-del'))return;catFilter=catFilter===cat.id?null:cat.id;render();};
+    const isActive=catFilter===cat.id;
+    const div=document.createElement('div');div.className='ds-cat'+(isActive?' active':'');
+    div.innerHTML=`<div class="ds-dot" style="background:${cat.color}"></div><div class="ds-name" style="${isActive?'color:var(--orange);font-weight:600':''}">${cat.name}</div><div class="ds-hrs">${m>0?mh(m)+'h':''}</div><button class="ds-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
+    div.onclick=(e)=>{
+      if(e.target.classList.contains('ds-del'))return;
+      // Toggle: click same category again to clear filter
+      catFilter=catFilter===cat.id?null:cat.id;
+      render();
+    };
     cl.appendChild(div);
   });
-  // Grid
+
+  // Grid — catFilter only applies here on desktop
   const grid=document.getElementById('deskGrid');grid.innerHTML='';
   days.forEach((d,i)=>{
     const dKey=dk(d);
@@ -843,11 +864,11 @@ function renderRightPanel(days,wEnt){
   });
 }
 
-function changeWeek(d){weekOffset+=d;render();}
+// Week change clears filter to avoid confusion
+function changeWeek(d){weekOffset+=d;catFilter=null;render();}
 
 // ── PAGE NAVIGATION ──
 function showPage(name){
-  // Guard coach page — only accessible by coach
   if(name==='coach' && !isCoach) return;
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.bn-btn').forEach(b=>b.classList.remove('active'));
@@ -873,7 +894,6 @@ async function renderCoachDashboard(){
   const days=getWeek(coachWeekOffset), wKeys=days.map(dk);
   document.getElementById('coachWeekLbl').textContent=`${fd(days[0])} – ${fd(days[6])}`;
 
-  // Load profiles (all registered clients), entries and reflections in parallel
   const [{data:profiles},{data:weekEntries},{data:allRefs}] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('entries').select('*').in('day', wKeys),
@@ -895,7 +915,6 @@ async function renderCoachDashboard(){
     return;
   }
 
-  // Summary bar
   const totalClients=profiles.length;
   const activeClients=(profiles||[]).filter(p=>(weekEntries||[]).some(e=>e.user_id===p.user_id)).length;
   grid.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
@@ -913,7 +932,6 @@ async function renderCoachDashboard(){
     </div>
   </div>
 
-  <!-- Filter buttons -->
   <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
     <button onclick="setCoachFilter('all')" id="cf_all" style="padding:8px 16px;border-radius:20px;border:1px solid var(--orange);background:var(--orange);color:#fff;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">ALL</button>
     <button onclick="setCoachFilter('green')" id="cf_green" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">🟢 GOOD</button>
@@ -926,7 +944,6 @@ async function renderCoachDashboard(){
 
   const cardsEl=document.getElementById('coachCards');
 
-  // Sort: coach first, then active, then inactive
   const sorted=[...(profiles||[])].sort((a,b)=>{
     if(a.email===COACH_EMAIL) return -1;
     if(b.email===COACH_EMAIL) return 1;
@@ -956,7 +973,6 @@ async function renderCoachDashboard(){
     card.dataset.coachCard=cardStatus;
     card.style.cssText=`background:var(--navy2);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;border-left:4px solid ${noActivity?'var(--border)':eff>=70?'var(--green)':eff>=40?'var(--yellow)':'var(--red)'};overflow:hidden;`;
     
-    // Quick view header — always visible
     card.innerHTML=`
       <div style="padding:16px;cursor:pointer;user-select:none" onclick="toggleCoachCard('${cardId}')">
         <div style="display:flex;align-items:center;justify-content:space-between">
@@ -972,8 +988,6 @@ async function renderCoachDashboard(){
             <div style="color:var(--muted);font-size:18px;transition:transform 0.2s" id="arr_${cardId}">›</div>
           </div>
         </div>
-
-        <!-- Quick stats row -->
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <div style="background:var(--navy3);border-radius:8px;padding:8px 12px;text-align:center;flex:1;min-width:60px">
             <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--muted);margin-bottom:2px">TOTAL</div>
@@ -1003,9 +1017,7 @@ async function renderCoachDashboard(){
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px">Last login: ${lastLogin}${run5k>0?` · 🏃 ${run5k} runs`:''}</div>
       </div>
 
-      <!-- Expandable drill-down -->
       <div id="${cardId}" style="display:none;border-top:1px solid var(--border);padding:16px">
-        <!-- Day by day breakdown -->
         <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px">Day by Day</div>
         ${days.map((d,i)=>{
           const dayEnts=ents.filter(e=>e.day===dk(d)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
@@ -1037,7 +1049,6 @@ async function renderCoachDashboard(){
           </div>`;
         }).join('')}
 
-        <!-- Reflection -->
         <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-top:16px;margin-bottom:12px">Week Reflection</div>
         ${ref
           ?`<div style="background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);border-radius:10px;padding:14px">
@@ -1076,7 +1087,6 @@ function setCoachFilter(f){
     btn.style.color=active?'#fff':'var(--muted)';
     btn.style.borderColor=active?'var(--orange)':'var(--border2)';
   });
-  // Show/hide cards based on filter
   document.querySelectorAll('[data-coach-card]').forEach(card=>{
     const status=card.dataset.coachCard;
     card.style.display=(f==='all'||status===f)?'block':'none';
@@ -1119,7 +1129,6 @@ function setWaste(v){
 }
 function openAddEntry(di){
   editingId=null;selWaste='good';
-  // Reset all form fields to editable state
   document.getElementById('taskIn').disabled=false;
   document.getElementById('notesIn').disabled=false;
   document.getElementById('catIn').disabled=false;
@@ -1136,9 +1145,8 @@ function openAddEntry(di){
   document.getElementById('entryOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('taskIn').focus(),300);
 }
-// ── ENTRY LOCKING ──
+
 function isLocked(dayStr){
-  // An entry is locked if the day is before today
   const today = new Date();
   today.setHours(0,0,0,0);
   const entryDate = new Date(dayStr);
@@ -1149,7 +1157,6 @@ function isLocked(dayStr){
 function openEditEntry(id,di){
   const e=entries.find(x=>x.id===id);if(!e)return;
   
-  // If locked — show read only view
   if(isLocked(e.day)){
     editingId=null;
     document.getElementById('sheetTitle').textContent='🔒 Locked Entry';
@@ -1170,7 +1177,6 @@ function openEditEntry(id,di){
     return;
   }
 
-  // Unlock form fields in case previously locked view was shown
   document.getElementById('taskIn').disabled=false;
   document.getElementById('notesIn').disabled=false;
   document.getElementById('catIn').disabled=false;
@@ -1192,7 +1198,6 @@ function openEditEntry(id,di){
 function closeEntry(){
   document.getElementById('entryOverlay').classList.remove('open');
   editingId=null;
-  // Always reset form to fully editable state on close
   document.getElementById('taskIn').disabled=false;
   document.getElementById('notesIn').disabled=false;
   document.getElementById('catIn').disabled=false;
@@ -1278,6 +1283,7 @@ async function deleteCat(e,id){
   if(!confirm('Delete this category?'))return;
   await sb.from('categories').delete().eq('id',id);
   cats=cats.filter(c=>c.id!==id);
+  if(catFilter===id) catFilter=null;
   render();
 }
 
@@ -1316,7 +1322,6 @@ function buildReviewContent(){
       <button class="btn-save" onclick="saveRef('${wk}')">Save Reflection</button>`;
     return;
   }
-  // Email preview
   const tot=wEnt.reduce((s,e)=>s+(e.duration_mins||0),0);
   const prod=wEnt.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
   const eff=tot>0?Math.round(prod/tot*100):0;
@@ -1354,8 +1359,6 @@ function exportToExcel(){
   const tot=wEnt.reduce((s,e)=>s+(e.duration_mins||0),0);
   const prod=wEnt.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
   const eff=tot>0?Math.round(prod/tot*100):0;
-
-  // ── Build worksheet data ──
   const sorted=wEnt.sort((a,b)=>{const di=wKeys.indexOf(a.day)-wKeys.indexOf(b.day);return di!==0?di:toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m);});
   const wsData=[
     ['PROGRESS HEX – Weekly Time Report'],
@@ -1375,19 +1378,10 @@ function exportToExcel(){
       e.notes||''
     ])
   ];
-
   const wb=XLSX.utils.book_new();
   const ws=XLSX.utils.aoa_to_sheet(wsData);
-
-  // Column widths
   ws['!cols']=[{wch:8},{wch:12},{wch:8},{wch:8},{wch:16},{wch:18},{wch:12},{wch:40},{wch:40}];
-
-  // Merge title row across all columns
-  ws['!merges']=[
-    {s:{r:0,c:0},e:{r:0,c:8}},
-    {s:{r:1,c:0},e:{r:1,c:8}}
-  ];
-
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:8}},{s:{r:1,c:0},e:{r:1,c:8}}];
   XLSX.utils.book_append_sheet(wb,ws,'Week Report');
   XLSX.writeFile(wb,`ProgressHEX_${clientName.replace(/\s+/g,'_')}_${weekOf}.xlsx`);
 }
