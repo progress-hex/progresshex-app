@@ -159,6 +159,8 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 .ci-name{flex:1;font-size:14px;color:var(--text2);}
 .ci-hrs{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
 .ci-del{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px;}
+.ci-edit{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px 6px;opacity:0.6;}
+.ci-edit:active{opacity:1;color:var(--orange);}
 .btn-add-cat{width:100%;padding:13px;border:1px dashed var(--border2);background:none;border-radius:12px;color:var(--muted);cursor:pointer;font-size:13px;transition:all 0.15s;margin-top:4px;}
 .btn-add-cat:active{border-color:var(--orange);color:var(--orange);}
 .btn-signout-full{width:100%;padding:14px;background:rgba(232,79,79,0.1);border:1px solid rgba(232,79,79,0.3);color:var(--red);border-radius:12px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;margin-top:8px;}
@@ -256,6 +258,9 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .ds-del{display:none;background:none;border:none;color:var(--muted);font-size:10px;cursor:pointer;padding:2px 4px;border-radius:4px;}
   .ds-cat:hover .ds-del{display:block;}
   .ds-del:hover{color:var(--red) !important;}
+  .ds-edit{display:none;background:none;border:none;color:var(--muted);font-size:10px;cursor:pointer;padding:2px 4px;border-radius:4px;}
+  .ds-cat:hover .ds-edit{display:block;}
+  .ds-edit:hover{color:var(--orange) !important;}
   .ds-add-cat{width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:7px;border-radius:7px;cursor:pointer;font-size:11px;margin-top:6px;}
   .ds-add-cat:hover{border-color:var(--orange);color:var(--orange);}
   .ds-clear-filter{width:100%;background:rgba(255,107,26,0.1);border:1px solid rgba(255,107,26,0.4);color:var(--orange);padding:7px;border-radius:7px;cursor:pointer;font-size:11px;margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:0.5px;}
@@ -516,11 +521,11 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 <div class="overlay" id="catOverlay">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <h2>Add Category</h2>
+    <h2 id="catSheetTitle">Add Category</h2>
     <div class="mfg"><label>Name</label><input type="text" id="catNameIn" placeholder="e.g. Deep Work"/></div>
     <div class="mfg"><label>Colour</label><div class="color-picker" id="colorPicker"></div></div>
     <div class="sheet-actions">
-      <button class="btn-save" onclick="saveCat()">Add Category</button>
+      <button class="btn-save" id="catSaveBtn" onclick="saveCat()">Add Category</button>
       <button class="btn-cancel" onclick="document.getElementById('catOverlay').classList.remove('open')">Cancel</button>
     </div>
   </div>
@@ -758,7 +763,7 @@ function renderMenuCats(){
   cats.forEach(cat=>{
     const m=wEnt.filter(e=>e.cat_id===cat.id).reduce((s,e)=>s+(e.duration_mins||0),0);
     const item=document.createElement('div');item.className='cat-item';
-    item.innerHTML=`<div class="ci-dot" style="background:${cat.color}"></div><div class="ci-name">${cat.name}</div><div class="ci-hrs">${m>0?mh(m)+'h':''}</div><button class="ci-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
+    item.innerHTML=`<div class="ci-dot" style="background:${cat.color}"></div><div class="ci-name">${cat.name}</div><div class="ci-hrs">${m>0?mh(m)+'h':''}</div><button class="ci-edit" onclick="openEditCat(event,'${cat.id}')">✏️</button><button class="ci-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
     list.appendChild(item);
   });
 }
@@ -781,7 +786,7 @@ function renderDesktop(){
     const m=wEnt.filter(e=>e.cat_id===cat.id).reduce((s,e)=>s+(e.duration_mins||0),0);
     const isActive=catFilter===cat.id;
     const div=document.createElement('div');div.className='ds-cat'+(isActive?' active':'');
-    div.innerHTML=`<div class="ds-dot" style="background:${cat.color}"></div><div class="ds-name" style="${isActive?'color:var(--orange);font-weight:600':''}">${cat.name}</div><div class="ds-hrs">${m>0?mh(m)+'h':''}</div><button class="ds-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
+    div.innerHTML=`<div class="ds-dot" style="background:${cat.color}"></div><div class="ds-name" style="${isActive?'color:var(--orange);font-weight:600':''}">${cat.name}</div><div class="ds-hrs">${m>0?mh(m)+'h':''}</div><button class="ds-edit" onclick="openEditCat(event,'${cat.id}')">✏</button><button class="ds-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
     div.onclick=(e)=>{
       if(e.target.classList.contains('ds-del'))return;
       // Toggle: click same category again to clear filter
@@ -1141,7 +1146,14 @@ function openAddEntry(di){
   document.getElementById('taskIn').value='';
   document.getElementById('notesIn').value='';
   document.getElementById('delBtn').style.display='none';
-  populateDaySelect(di,null);populateCatSelect(null);populateTimes(9,0,10,0);setWaste('good');
+  // Default times: nearest 15-min slot to now, +1hr for end
+  const now=new Date();
+  let sh=now.getHours(), sm=Math.round(now.getMinutes()/15)*15;
+  if(sm===60){sh+=1;sm=0;}
+  sh=Math.max(DAY_START,Math.min(DAY_END,sh));
+  let eh=sh+1, em=sm;
+  if(eh>DAY_END){eh=DAY_END;em=0;}
+  populateDaySelect(di,null);populateCatSelect(null);populateTimes(sh,sm,eh,em);setWaste('good');
   document.getElementById('entryOverlay').classList.add('open');
   setTimeout(()=>document.getElementById('taskIn').focus(),300);
 }
@@ -1256,12 +1268,35 @@ async function deleteEntry(){
 }
 
 // ── CATEGORIES ──
+let editingCatId=null;
+
 function openAddCat(){
+  editingCatId=null;
   document.getElementById('catNameIn').value='';
+  document.getElementById('catSheetTitle').textContent='Add Category';
+  document.getElementById('catSaveBtn').textContent='Add Category';
   selColor=COLORS[0];
   renderColorPicker();
   document.getElementById('catOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('catNameIn').focus(),300);
 }
+
+function openEditCat(e,id){
+  e.stopPropagation();
+  const cat=cats.find(c=>c.id===id);if(!cat)return;
+  editingCatId=id;
+  document.getElementById('catNameIn').value=cat.name;
+  document.getElementById('catSheetTitle').textContent='Edit Category';
+  document.getElementById('catSaveBtn').textContent='Save Changes';
+  selColor=cat.color||COLORS[0];
+  renderColorPicker();
+  document.getElementById('catOverlay').classList.add('open');
+  setTimeout(()=>{
+    const inp=document.getElementById('catNameIn');
+    inp.focus();inp.select();
+  },300);
+}
+
 function renderColorPicker(){
   const cp=document.getElementById('colorPicker');cp.innerHTML='';
   COLORS.forEach(c=>{
@@ -1270,11 +1305,24 @@ function renderColorPicker(){
     cp.appendChild(sw);
   });
 }
+
 async function saveCat(){
   const name=document.getElementById('catNameIn').value.trim();
   if(!name)return;
-  const{data}=await sb.from('categories').insert({user_id:user.id,name,color:selColor}).select();
-  if(data?.[0])cats.push(data[0]);
+  if(editingCatId){
+    // Update existing
+    const{data}=await sb.from('categories').update({name,color:selColor}).eq('id',editingCatId).select();
+    if(data?.[0]){
+      cats=cats.map(c=>c.id===editingCatId?data[0]:c);
+    } else {
+      cats=cats.map(c=>c.id===editingCatId?{...c,name,color:selColor}:c);
+    }
+  } else {
+    // Add new
+    const{data}=await sb.from('categories').insert({user_id:user.id,name,color:selColor}).select();
+    if(data?.[0])cats.push(data[0]);
+  }
+  editingCatId=null;
   document.getElementById('catOverlay').classList.remove('open');
   render();
 }
@@ -1387,7 +1435,7 @@ function exportToExcel(){
 }
 
 // ── CLOSE OVERLAYS ON BG CLICK ──
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o){o.classList.remove('open');editingId=null;}}));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o){o.classList.remove('open');editingId=null;editingCatId=null;}}));
 
 // ── BOOT ──
 (async()=>{
