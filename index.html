@@ -293,6 +293,29 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .ins-card{background:var(--navy3);border:1px solid var(--border2);border-radius:8px;padding:10px;text-align:center;}
   .ins-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
   .ins-val{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;}
+  /* View toggle */
+  .desk-view-toggle{display:flex;gap:4px;background:var(--navy3);border:1px solid var(--border);border-radius:8px;padding:3px;}
+  .dvt-btn{background:none;border:none;color:var(--muted);padding:5px 12px;border-radius:5px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
+  .dvt-btn.active{background:var(--navy4);color:var(--text);}
+  /* Day nav pills on desktop */
+  .desk-day-nav{display:flex;gap:6px;margin-bottom:12px;}
+  .ddn-pill{background:var(--navy2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:var(--text2);transition:all 0.15s;text-align:center;}
+  .ddn-pill:hover{border-color:var(--orange);color:var(--orange);}
+  .ddn-pill.active{background:rgba(255,107,26,0.12);border-color:var(--orange);color:var(--orange);}
+  .ddn-pill-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;display:block;}
+  .ddn-pill-date{font-size:9px;display:block;margin-top:1px;}
+  /* Day view single column */
+  .day-view-col{background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;max-width:680px;}
+  .day-view-header{padding:14px 16px;background:var(--navy3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .day-view-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--orange);}
+  .day-view-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px;}
+  .day-view-entries{padding:10px;}
+  .d-entry-day{background:var(--navy3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;}
+  .d-entry-day:hover{transform:translateY(-1px);}
+  .d-task-day{font-size:14px;font-weight:600;margin-bottom:6px;color:var(--text);}
+  .d-meta-day{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .d-time-day{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);}
+  .d-dur-day{font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);font-weight:600;}
   /* Desktop header extras */
   .tb-week{display:flex;}
   .tb-total{display:flex;}
@@ -378,7 +401,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
         <button onclick="changeWeek(1)">›</button>
       </div>
       <div class="tb-total">WEEK: <span id="weekTot">0</span>h</div>
-      <button class="btn-review-d" onclick="openReview()">📋 Week Review</button>
+      <div class="desk-view-toggle"><button class="dvt-btn active" id="dvt-day" onclick="setDeskView('day')">Day</button><button class="dvt-btn" id="dvt-week" onclick="setDeskView('week')">Week</button></div><button class="btn-review-d" onclick="openReview()">📋 Week Review</button>
       <span class="user-badge-d" id="userBadge"></span>
       <button class="tb-signout" onclick="signOut()">Sign Out</button>
     </div>
@@ -608,7 +631,7 @@ const sb=createClient(SB_URL,SB_KEY,{
   auth:{persistSession:true,storageKey:'sb-session',storage:window.localStorage}
 });
 
-let user=null, entries=[], cats=[], refs={}, dailyLogs={}, weekOffset=0, catFilter=null;
+let user=null, entries=[], cats=[], refs={}, dailyLogs={}, weekOffset=0, catFilter=null, deskView='day', deskDayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
 let editingId=null, selWaste='good', selColor=COLORS[0], isCoach=false;
 let activeDayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
 let reviewTab='preview';
@@ -868,6 +891,50 @@ function renderMenuCats(){
 }
 
 // ── DESKTOP RENDER ──
+
+function setDeskView(v){
+  deskView=v;
+  document.getElementById('dvt-day').classList.toggle('active',v==='day');
+  document.getElementById('dvt-week').classList.toggle('active',v==='week');
+  renderDesktop();
+}
+
+function renderDeskDay(days, wEnt){
+  const grid=document.getElementById('deskGrid');grid.innerHTML='';
+  // Day nav pills
+  const nav=document.createElement('div');nav.className='desk-day-nav';
+  days.forEach((d,i)=>{
+    const dm=wEnt.filter(e=>e.day===dk(d)).reduce((s,e)=>s+(e.duration_mins||0),0);
+    const pill=document.createElement('div');pill.className='ddn-pill'+(i===deskDayIdx?' active':'');
+    pill.innerHTML=`<span class="ddn-pill-name">${DAYS_SHORT[i]}</span><span class="ddn-pill-date">${d.getDate()}</span>`;
+    pill.onclick=()=>{deskDayIdx=i;renderDesktop();};
+    nav.appendChild(pill);
+  });
+  grid.appendChild(nav);
+  // Single day column
+  const d=days[deskDayIdx];
+  const dKey=dk(d);
+  const de=wEnt.filter(e=>e.day===dKey&&(!catFilter||e.cat_id===catFilter)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
+  const col=document.createElement('div');col.className='day-view-col';
+  const dayTot=de.reduce((s,e)=>s+(e.duration_mins||0),0);
+  col.innerHTML=`<div class="day-view-header"><div><div class="day-view-name">${DAYS_SHORT[deskDayIdx]} — ${d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div><div class="day-view-date">${dayTot>0?mh(dayTot)+' logged':'Nothing logged yet'}</div></div><button class="day-add" onclick="openAddEntry(${deskDayIdx})" style="font-size:24px;color:var(--orange)">+</button></div><div class="day-view-entries" id="dvEntries"></div>`;
+  grid.appendChild(col);
+  const cont=col.querySelector('#dvEntries');
+  if(!de.length){cont.innerHTML=`<div class="empty-day"><div class="empty-icon">⏱</div><div class="empty-txt">Nothing logged</div><div class="empty-sub">Tap + to add an entry</div></div>`;return;}
+  de.forEach(entry=>{
+    const cat=cats.find(c=>c.id===entry.cat_id);
+    const tagCls=entry.waste==='waste'?'tag-waste':entry.waste==='mixed'?'tag-mixed':'tag-good';
+    const tagTxt=entry.waste==='waste'?'Waste':entry.waste==='mixed'?'Mixed':'Good';
+    const locked=isLocked(entry.day);
+    const card=document.createElement('div');card.className='d-entry-day';
+    card.style.borderLeftColor=cat?cat.color:'var(--border)';
+    if(locked)card.style.opacity='0.75';
+    card.innerHTML=`<div class="d-task-day">${locked?'🔒 ':''}${entry.task}</div><div class="d-meta-day"><span class="d-time-day">${ft(entry.start_h,entry.start_m)} – ${ft(entry.end_h,entry.end_m)}</span><span class="d-dur-day">${mh(entry.duration_mins||0)}</span><span class="tag ${tagCls}">${tagTxt}</span>${cat?`<span class="ec-cat">${cat.name}</span>`:''}</div>`;
+    card.onclick=()=>openEditEntry(entry.id,deskDayIdx);
+    cont.appendChild(card);
+  });
+}
+
 function renderDesktop(){
   const days=getWeek(weekOffset),wKeys=days.map(dk);
   const wEnt=entries.filter(e=>wKeys.includes(e.day));
@@ -895,7 +962,8 @@ function renderDesktop(){
     cl.appendChild(div);
   });
 
-  // Grid — catFilter only applies here on desktop
+  // Grid — branch on view mode
+  if(deskView==='day'){renderDeskDay(days,wEnt);renderRightPanel(days,wEnt);return;}
   const grid=document.getElementById('deskGrid');grid.innerHTML='';
   days.forEach((d,i)=>{
     const dKey=dk(d);
