@@ -71,7 +71,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 .tb-sleep-btn{background:var(--navy3);border:1px solid var(--border2);color:var(--text2);padding:9px 14px;border-radius:10px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.5px;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:5px;line-height:1;font-weight:600;}
 .tb-sleep-btn:active{transform:scale(0.95);}
 .tb-sleep-btn.logged{border-color:var(--orange);color:var(--orange);background:rgba(255,107,26,0.1);}
-.tb-sleep-time{font-size:12px;}
+.tb-sleep-time{font-size:12px;}.tb-sleep-clear{font-size:11px;opacity:0.6;margin-left:2px;line-height:1;}.tb-sleep-clear:hover{opacity:1;color:var(--red);}
 
 /* ── PAGES ── */
 .pages{flex:1;overflow:hidden;position:relative;}
@@ -691,11 +691,27 @@ function updateSleepButtons(){
   const today=dk(new Date());
   const log=dailyLogs[today]||{};
   const wb=document.getElementById('wakeBtn'),bb=document.getElementById('bedBtn');
-  const wl=document.getElementById('wakeLbl'),bl=document.getElementById('bedLbl');
-  if(log.wake_time){wl.textContent=log.wake_time;wb.classList.add('logged');}
-  else{wl.textContent='Wake';wb.classList.remove('logged');}
-  if(log.bed_time){bl.textContent=log.bed_time;bb.classList.add('logged');}
-  else{bl.textContent='Bed';bb.classList.remove('logged');}
+  if(log.wake_time){
+    wb.innerHTML=`🌅 <span class="tb-sleep-time">${log.wake_time}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('wake')" title="Clear">✕</span>`;
+    wb.classList.add('logged');
+  } else {
+    wb.innerHTML=`🌅 <span class="tb-sleep-time">Wake</span>`;
+    wb.classList.remove('logged');
+  }
+  if(log.bed_time){
+    bb.innerHTML=`🌙 <span class="tb-sleep-time">${log.bed_time}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('bed')" title="Clear">✕</span>`;
+    bb.classList.add('logged');
+  } else {
+    bb.innerHTML=`🌙 <span class="tb-sleep-time">Bed</span>`;
+    bb.classList.remove('logged');
+  }
+}
+async function clearSleepTime(type){
+  const today=dk(new Date());
+  const existing=dailyLogs[today]||{};
+  const row={user_id:user.id,day:today,wake_time:type==='wake'?null:existing.wake_time||null,bed_time:type==='bed'?null:existing.bed_time||null};
+  await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
+  dailyLogs[today]=row;updateSleepButtons();
 }
 async function logWakeTime(){
   const today=dk(new Date());
