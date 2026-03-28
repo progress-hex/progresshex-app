@@ -32,7 +32,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 #loading{position:fixed;inset:0;background:var(--navy);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.loading-txt{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;}
+.loading-txt{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);letter-spacing:2px;}
 
 /* ── AUTH ── */
 #auth{position:fixed;inset:0;background:var(--navy);z-index:50;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
@@ -41,19 +41,19 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 .auth-hex{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;}
 .auth-hex svg{width:60px;height:54px;}
 .auth-hex span{position:absolute;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:#fff;}
-.auth-subtitle{text-align:center;font-size:15px;color:var(--text2);margin-bottom:24px;}
+.auth-subtitle{text-align:center;font-size:16px;color:var(--text2);margin-bottom:24px;}
 .auth-tabs{display:flex;background:var(--navy3);border-radius:10px;padding:4px;gap:4px;margin-bottom:20px;}
-.auth-tab{flex:1;padding:9px;border:none;background:none;color:var(--muted);border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
+.auth-tab{flex:1;padding:9px;border:none;background:none;color:var(--muted);border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
 .auth-tab.active{background:var(--navy4);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.3);}
 .fg{margin-bottom:14px;}
-.fg label{display:block;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px;}
+.fg label{display:block;font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:5px;}
 .fg input{width:100%;background:var(--navy3);border:1px solid var(--border2);color:var(--text);padding:12px 14px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s;}
 .fg input:focus{border-color:var(--orange);}
 .btn-auth{width:100%;background:var(--og);border:none;color:#fff;padding:14px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;margin-top:6px;box-shadow:0 4px 16px rgba(255,107,26,0.35);}
-.auth-msg{text-align:center;font-size:13px;margin-top:12px;min-height:18px;}
+.auth-msg{text-align:center;font-size:16px;margin-top:12px;min-height:18px;}
 .auth-msg.error{color:var(--red);}
 .auth-msg.success{color:var(--green);}
-.auth-footer{text-align:center;font-size:11px;color:var(--muted);margin-top:20px;font-family:'DM Mono',monospace;}
+.auth-footer{text-align:center;font-size:16px;color:var(--muted);margin-top:20px;font-family:'DM Mono',monospace;}
 
 /* ── APP SHELL ── */
 #app{display:none;height:100%;flex-direction:column;}
@@ -67,16 +67,16 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 .tb-right{display:flex;align-items:center;gap:10px;}
 .tb-week{display:flex;align-items:center;gap:6px;}
 .tb-week button{background:var(--navy3);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
-.tb-week-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--text2);min-width:90px;text-align:center;}
+.tb-week-lbl{font-family:'DM Mono',monospace;font-size:16px;color:var(--text2);min-width:90px;text-align:center;}
 .tb-total{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--orange);}
-.tb-signout{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;}
+.tb-signout{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;}
 .tb-left-group{display:flex;align-items:center;gap:12px;}
 .tb-sleep{display:flex;gap:8px;align-items:center;}
-.tb-sleep-btn{background:rgba(255,107,26,0.1);border:2px solid rgba(255,107,26,0.5);color:var(--orange);padding:9px 14px;border-radius:10px;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.5px;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:5px;line-height:1;font-weight:600;}
+.tb-sleep-btn{background:rgba(255,107,26,0.1);border:2px solid rgba(255,107,26,0.5);color:var(--orange);padding:9px 14px;border-radius:10px;cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:0.5px;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:5px;line-height:1;font-weight:600;}
 .tb-sleep-btn:active{transform:scale(0.95);}
 .tb-sleep-btn.logged{border-color:var(--orange);color:var(--orange);background:rgba(255,107,26,0.2);}
-.tb-sleep-time{font-size:12px;}
-.tb-sleep-clear{font-size:11px;opacity:0.6;margin-left:2px;line-height:1;}
+.tb-sleep-time{font-size:16px;}
+.tb-sleep-clear{font-size:16px;opacity:0.6;margin-left:2px;line-height:1;}
 .tb-sleep-clear:hover{opacity:1;color:var(--red);}
 
 /* ── PAGES ── */
@@ -91,7 +91,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 .bn-btn.active{color:var(--orange);}
 .bn-btn.active::after{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--orange);border-radius:0 0 2px 2px;}
 .bn-icon{font-size:20px;line-height:1;}
-.bn-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.5px;text-transform:uppercase;}
+.bn-label{font-family:'DM Mono',monospace;font-size:16px;letter-spacing:0.5px;text-transform:uppercase;}
 
 /* ── FAB ── */
 .fab{position:fixed;right:18px;bottom:calc(68px + var(--safe-bottom) + 12px);width:56px;height:56px;border-radius:50%;background:var(--og);border:none;color:#fff;font-size:28px;cursor:pointer;box-shadow:0 4px 20px rgba(255,107,26,0.5);display:flex;align-items:center;justify-content:center;z-index:20;transition:transform 0.15s;}
@@ -99,7 +99,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 
 /* ── TRACKER PAGE ── */
 .week-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.wh-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.wh-label{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);letter-spacing:1px;}
 .wh-total{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;}
 .wh-total span{color:var(--orange);}
 .wh-nav{display:flex;gap:6px;}
@@ -112,40 +112,40 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 .day-pill.active{background:rgba(255,107,26,0.12);border-color:var(--orange);}
 .dp-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--text2);}
 .day-pill.active .dp-name{color:var(--orange);}
-.dp-date{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;}
-.dp-hrs{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-top:3px;}
+.dp-date{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-top:1px;}
+.dp-hrs{font-family:'DM Mono',monospace;font-size:16px;color:var(--green);margin-top:3px;}
 .dp-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);margin:3px auto 0;}
 .day-pill.active .dp-dot{background:var(--orange);}
 
 /* Entry cards */
 .entry-card{background:var(--navy2);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;active:opacity:0.8;}
 .entry-card:active{transform:scale(0.98);opacity:0.85;}
-.ec-task{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.3;}
+.ec-task{font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.3;}
 .ec-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.ec-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
-.ec-dur{font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);font-weight:600;}
-.ec-cat{font-size:11px;color:var(--muted);background:var(--navy3);padding:2px 8px;border-radius:20px;}
-.tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:0.3px;}
+.ec-time{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);}
+.ec-dur{font-family:'DM Mono',monospace;font-size:16px;color:var(--orange);font-weight:600;}
+.ec-cat{font-size:16px;color:var(--muted);background:var(--navy3);padding:2px 8px;border-radius:20px;}
+.tag{font-size:16px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:0.3px;}
 .tag-good{background:rgba(62,207,114,0.15);color:var(--green);}
 .tag-mixed{background:rgba(245,200,66,0.15);color:var(--yellow);}
 .tag-waste{background:rgba(232,79,79,0.15);color:var(--red);}
 .empty-day{text-align:center;padding:48px 20px;color:var(--muted);}
 .empty-icon{font-size:40px;margin-bottom:12px;}
-.empty-txt{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;margin-bottom:6px;}
-.empty-sub{font-size:12px;color:var(--border);}
+.empty-txt{font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;margin-bottom:6px;}
+.empty-sub{font-size:16px;color:var(--border);}
 
 /* ── STATS PAGE ── */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
 .stat-card{background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;}
-.stat-label{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
+.stat-label{font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
 .stat-val{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;}
-.section-title{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;margin-top:20px;}
+.section-title{font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px;margin-top:20px;}
 .cat-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
 .cbr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.cbr-name{flex:1;font-size:13px;color:var(--text2);}
+.cbr-name{flex:1;font-size:16px;color:var(--text2);}
 .cbr-bar{width:70px;height:5px;background:var(--navy3);border-radius:3px;overflow:hidden;}
 .cbr-fill{height:100%;border-radius:3px;}
-.cbr-hrs{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:32px;text-align:right;}
+.cbr-hrs{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);min-width:32px;text-align:right;}
 .stats-actions{display:flex;flex-direction:column;gap:10px;margin-top:20px;}
 .btn-action{width:100%;padding:14px;border-radius:12px;border:none;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;transition:opacity 0.15s;}
 .btn-action:active{opacity:0.8;}
@@ -155,24 +155,24 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 /* ── MENU PAGE ── */
 .menu-user{background:var(--navy2);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
 .mu-avatar{width:44px;height:44px;border-radius:50%;background:var(--og);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;flex-shrink:0;}
-.mu-name{font-size:15px;font-weight:600;color:var(--text);}
-.mu-email{font-size:12px;color:var(--muted);margin-top:2px;}
+.mu-name{font-size:16px;font-weight:600;color:var(--text);}
+.mu-email{font-size:16px;color:var(--muted);margin-top:2px;}
 .menu-section{margin-bottom:20px;}
 .menu-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--navy2);border:1px solid var(--border2);border-radius:12px;cursor:pointer;margin-bottom:8px;transition:all 0.15s;}
 .menu-item:active{background:var(--navy3);}
 .mi-icon{font-size:20px;width:32px;text-align:center;}
 .mi-text{flex:1;}
-.mi-title{font-size:14px;color:var(--text);font-weight:500;}
-.mi-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.mi-title{font-size:16px;color:var(--text);font-weight:500;}
+.mi-sub{font-size:16px;color:var(--muted);margin-top:2px;}
 .mi-arrow{color:var(--muted);font-size:16px;}
 .cat-item{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--navy2);border:1px solid var(--border2);border-radius:12px;margin-bottom:8px;}
 .ci-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
-.ci-name{flex:1;font-size:14px;color:var(--text2);}
-.ci-hrs{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);}
+.ci-name{flex:1;font-size:16px;color:var(--text2);}
+.ci-hrs{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);}
 .ci-del{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px;}
-.ci-edit{background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px 6px;opacity:0.6;}
+.ci-edit{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px;opacity:0.6;}
 .ci-edit:active{opacity:1;color:var(--orange);}
-.btn-add-cat{width:100%;padding:13px;border:1px dashed var(--border2);background:none;border-radius:12px;color:var(--muted);cursor:pointer;font-size:13px;transition:all 0.15s;margin-top:4px;}
+.btn-add-cat{width:100%;padding:13px;border:1px dashed var(--border2);background:none;border-radius:12px;color:var(--muted);cursor:pointer;font-size:16px;transition:all 0.15s;margin-top:4px;}
 .btn-add-cat:active{border-color:var(--orange);color:var(--orange);}
 .btn-signout-full{width:100%;padding:14px;background:rgba(232,79,79,0.1);border:1px solid rgba(232,79,79,0.3);color:var(--red);border-radius:12px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;margin-top:8px;}
 
@@ -183,22 +183,22 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 .sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px;}
 .sheet h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:20px;}
 .mfg{margin-bottom:14px;}
-.mfg label{display:block;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
+.mfg label{display:block;font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:6px;}
 .mfg input,.mfg select,.mfg textarea{width:100%;background:var(--navy3);border:1px solid var(--border2);color:var(--text);padding:12px 14px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s;-webkit-appearance:none;}
 .mfg input:focus,.mfg select:focus,.mfg textarea:focus{border-color:var(--orange);}
 .mfg textarea{resize:none;min-height:72px;}
 .mfg select option{background:var(--navy3);}
 .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-.dur-badge{background:var(--navy3);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;text-align:center;font-family:'DM Mono',monospace;font-size:13px;color:var(--orange);}
+.dur-badge{background:var(--navy3);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;text-align:center;font-family:'DM Mono',monospace;font-size:16px;color:var(--orange);}
 .waste-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px;}
-.waste-opt{padding:12px 6px;border:1px solid var(--border2);border-radius:10px;cursor:pointer;text-align:center;font-size:12px;font-weight:600;background:var(--navy3);color:var(--text2);transition:all 0.15s;}
+.waste-opt{padding:12px 6px;border:1px solid var(--border2);border-radius:10px;cursor:pointer;text-align:center;font-size:16px;font-weight:600;background:var(--navy3);color:var(--text2);transition:all 0.15s;}
 .waste-opt.sel-good{border-color:var(--green);color:var(--green);background:rgba(62,207,114,0.1);}
 .waste-opt.sel-mixed{border-color:var(--yellow);color:var(--yellow);background:rgba(245,200,66,0.1);}
 .waste-opt.sel-waste{border-color:var(--red);color:var(--red);background:rgba(232,79,79,0.1);}
 .sheet-actions{display:flex;gap:10px;margin-top:20px;}
 .btn-save{flex:1;background:var(--og);border:none;color:#fff;padding:14px;border-radius:10px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;}
-.btn-cancel{background:var(--navy3);border:1px solid var(--border);color:var(--text2);padding:14px 18px;border-radius:10px;cursor:pointer;font-size:14px;}
-.btn-del{background:rgba(232,79,79,0.12);border:1px solid rgba(232,79,79,0.3);color:var(--red);padding:14px 16px;border-radius:10px;cursor:pointer;font-size:12px;}
+.btn-cancel{background:var(--navy3);border:1px solid var(--border);color:var(--text2);padding:14px 18px;border-radius:10px;cursor:pointer;font-size:16px;}
+.btn-del{background:rgba(232,79,79,0.12);border:1px solid rgba(232,79,79,0.3);color:var(--red);padding:14px 16px;border-radius:10px;cursor:pointer;font-size:16px;}
 .color-picker{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;}
 .color-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;}
 .color-swatch.selected{border-color:#fff;transform:scale(1.15);}
@@ -206,21 +206,21 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 /* ── REVIEW SHEET ── */
 .review-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
 .rk{background:var(--navy3);border-radius:10px;padding:12px;text-align:center;}
-.rk-label{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px;}
+.rk-label{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-bottom:4px;}
 .rk-val{font-family:'Bebas Neue',sans-serif;font-size:24px;}
 .review-tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--navy3);border-radius:10px;padding:4px;}
-.rtab{flex:1;padding:8px;border:none;background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-radius:7px;transition:all 0.15s;}
+.rtab{flex:1;padding:8px;border:none;background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;text-transform:uppercase;border-radius:7px;transition:all 0.15s;}
 .rtab.active{background:var(--navy4);color:var(--text);}
 .day-block{background:var(--navy3);border-radius:10px;padding:12px;margin-bottom:8px;}
-.db-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;color:var(--orange);margin-bottom:8px;}
-.db-entry{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:12px;}
-.db-time{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:90px;padding-top:1px;}
-.ref-field{width:100%;background:var(--navy3);border:1px solid var(--border2);color:var(--text);padding:12px 14px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;outline:none;resize:none;min-height:80px;margin-bottom:14px;}
+.db-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--orange);margin-bottom:8px;}
+.db-entry{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:16px;}
+.db-time{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);min-width:90px;padding-top:1px;}
+.ref-field{width:100%;background:var(--navy3);border:1px solid var(--border2);color:var(--text);padding:12px 14px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;resize:none;min-height:80px;margin-bottom:14px;}
 .ref-field:focus{border-color:var(--orange);}
 .star-row{display:flex;gap:8px;margin-bottom:20px;}
 .star-btn{width:40px;height:40px;border-radius:8px;border:1px solid var(--border2);background:var(--navy3);color:var(--muted);cursor:pointer;font-size:18px;}
 .star-btn.active{border-color:var(--orange);background:rgba(255,107,26,0.15);color:var(--orange);}
-.copy-btn{background:var(--navy3);border:1px solid var(--border);color:var(--text2);padding:10px 16px;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;}
+.copy-btn{background:var(--navy3);border:1px solid var(--border);color:var(--text2);padding:10px 16px;border-radius:8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;}
 .copy-btn.copied{border-color:var(--green);color:var(--green);}
 
 /* ── DESKTOP OVERRIDE ── */
@@ -249,79 +249,79 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .desk-day-pill{flex:1;background:var(--navy3);border:1px solid var(--border2);border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;transition:all 0.15s;}
   .desk-day-pill:hover{border-color:var(--orange);}
   .desk-day-pill.active{background:rgba(255,107,26,0.12);border-color:var(--orange);}
-  .desk-day-pill .dp-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text2);}
+  .desk-day-pill .dp-name{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--text2);}
   .desk-day-pill.active .dp-name{color:var(--orange);}
-  .desk-day-pill .dp-date{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
-  .desk-day-pill .dp-hrs{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-top:2px;}
+  .desk-day-pill .dp-date{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-top:2px;}
+  .desk-day-pill .dp-hrs{font-family:'DM Mono',monospace;font-size:16px;color:var(--green);margin-top:2px;}
   /* Desktop day entries */
   .desk-day-entries{display:flex;flex-direction:column;gap:8px;}
   .desk-day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
   .desk-day-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--orange);}
-  .desk-day-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+  .desk-day-sub{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);}
   .d-entry{background:var(--navy3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;}
   .d-entry:hover{transform:translateY(-1px);}
-  .d-task{font-size:13px;font-weight:600;margin-bottom:5px;color:var(--text);}
+  .d-task{font-size:16px;font-weight:600;margin-bottom:5px;color:var(--text);}
   .d-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-  .d-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);}
-  .d-dur{font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);font-weight:600;}
+  .d-time{font-family:'DM Mono',monospace;font-size:16px;color:var(--text2);}
+  .d-dur{font-family:'DM Mono',monospace;font-size:16px;color:var(--orange);font-weight:600;}
   .day-col{background:var(--navy2);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-height:200px;}
   .day-header{padding:8px 10px;background:var(--navy3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-  .day-name-d{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text2);}
-  .day-date-d{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
+  .day-name-d{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--text2);}
+  .day-date-d{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);}
   .day-add{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;}
   .day-add:hover{color:var(--orange);}
   .day-entries-d{padding:6px;}
   .d-entry{background:var(--navy3);border:1px solid var(--border2);border-radius:7px;padding:7px 8px;margin-bottom:5px;cursor:pointer;border-left:3px solid transparent;}
   .d-entry:hover{transform:translateY(-1px);}
-  .d-task{font-size:11px;font-weight:500;margin-bottom:3px;}
+  .d-task{font-size:16px;font-weight:500;margin-bottom:3px;}
   .d-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
-  .d-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
-  .d-dur{font-family:'DM Mono',monospace;font-size:9px;color:var(--orange);}
+  .d-time{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);}
+  .d-dur{font-family:'DM Mono',monospace;font-size:16px;color:var(--orange);}
   /* Desktop sidebar styles */
-  .ds-h{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;margin-top:16px;}
+  .ds-h{font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;margin-top:16px;}
   .ds-h:first-child{margin-top:0;}
   .ds-cat{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;margin-bottom:2px;}
   .ds-cat:hover{background:var(--navy3);}
   .ds-cat.active{background:rgba(255,107,26,0.12);border:1px solid rgba(255,107,26,0.4);}
   .ds-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-  .ds-name{flex:1;font-size:12px;color:var(--text2);}
-  .ds-hrs{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
-  .ds-del{display:none;background:none;border:none;color:var(--muted);font-size:10px;cursor:pointer;padding:2px 4px;border-radius:4px;}
+  .ds-name{flex:1;font-size:16px;color:var(--text2);}
+  .ds-hrs{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);}
+  .ds-del{display:none;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;border-radius:4px;}
   .ds-cat:hover .ds-del{display:block;}
   .ds-del:hover{color:var(--red) !important;}
-  .ds-edit{display:none;background:none;border:none;color:var(--muted);font-size:10px;cursor:pointer;padding:2px 4px;border-radius:4px;}
+  .ds-edit{display:none;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 4px;border-radius:4px;}
   .ds-cat:hover .ds-edit{display:block;}
   .ds-edit:hover{color:var(--orange) !important;}
-  .ds-add-cat{width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:7px;border-radius:7px;cursor:pointer;font-size:11px;margin-top:6px;}
+  .ds-add-cat{width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:7px;border-radius:7px;cursor:pointer;font-size:16px;margin-top:6px;}
   .ds-add-cat:hover{border-color:var(--orange);color:var(--orange);}
-  .ds-clear-filter{width:100%;background:rgba(255,107,26,0.1);border:1px solid rgba(255,107,26,0.4);color:var(--orange);padding:7px;border-radius:7px;cursor:pointer;font-size:11px;margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:0.5px;}
+  .ds-clear-filter{width:100%;background:rgba(255,107,26,0.1);border:1px solid rgba(255,107,26,0.4);color:var(--orange);padding:7px;border-radius:7px;cursor:pointer;font-size:16px;margin-top:4px;font-family:'DM Mono',monospace;letter-spacing:0.5px;}
   .ds-clear-filter:hover{background:rgba(255,107,26,0.2);}
-  .ds-export{width:100%;background:var(--og);border:none;color:#fff;padding:8px;border-radius:7px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;cursor:pointer;margin-top:6px;}
-  .coach-lnk{text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-decoration:none;padding:8px;border:1px solid var(--border2);border-radius:6px;margin-top:8px;letter-spacing:1px;}
+  .ds-export{width:100%;background:var(--og);border:none;color:#fff;padding:8px;border-radius:7px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px;cursor:pointer;margin-top:6px;}
+  .coach-lnk{text-align:center;font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);text-decoration:none;padding:8px;border:1px solid var(--border2);border-radius:6px;margin-top:8px;letter-spacing:1px;}
   .coach-lnk:hover{border-color:var(--orange);color:var(--orange);}
   /* Desktop right panel */
-  .rp-h{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
+  .rp-h{font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
   .rp-sec{margin-bottom:20px;}
   .tl-day{margin-bottom:8px;}
-  .tl-lbl{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:3px;}
+  .tl-lbl{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-bottom:3px;}
   .tl-bar{height:8px;background:var(--navy3);border-radius:4px;position:relative;overflow:hidden;}
   .tl-seg{position:absolute;top:0;height:100%;border-radius:2px;}
   .bd-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
   .bd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-  .bd-name{flex:1;font-size:11px;color:var(--text2);}
+  .bd-name{flex:1;font-size:16px;color:var(--text2);}
   .bd-bw{width:60px;height:4px;background:var(--navy3);border-radius:2px;overflow:hidden;}
   .bd-bf{height:100%;border-radius:2px;}
-  .bd-h{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:28px;text-align:right;}
+  .bd-h{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);min-width:28px;text-align:right;}
   .ins-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
   .ins-card{background:var(--navy3);border:1px solid var(--border2);border-radius:8px;padding:10px;text-align:center;}
-  .ins-lbl{font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
+  .ins-lbl{font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:4px;}
   .ins-val{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;}
   /* Desktop header extras */
   .tb-week{display:flex;}
   .tb-total{display:flex;}
-  .btn-review-d{background:var(--navy3);border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;}
+  .btn-review-d{background:var(--navy3);border:1px solid var(--border);color:var(--text2);padding:6px 14px;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1.5px;text-transform:uppercase;}
   .btn-review-d:hover{border-color:var(--orange);color:var(--orange);}
-  .user-badge-d{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;}
+  .user-badge-d{font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);letter-spacing:1px;}
   /* Overlay as centered modal on desktop */
   .overlay{align-items:center;}
   .sheet{border-radius:14px;max-width:480px;margin:0 auto;padding:24px;}
@@ -372,7 +372,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
     </div>
     <button class="btn-auth" id="authBtn" onclick="handleAuth()">SIGN IN</button>
     <div class="auth-msg" id="authMsg"></div>
-    <button id="forgotBtn" onclick="forgotPassword()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;margin-top:10px;text-decoration:underline;font-family:'DM Mono',monospace;letter-spacing:0.5px;width:100%;text-align:center">Forgot password?</button>
+    <button id="forgotBtn" onclick="forgotPassword()" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;margin-top:10px;text-decoration:underline;font-family:'DM Mono',monospace;letter-spacing:0.5px;width:100%;text-align:center">Forgot password?</button>
     <div class="auth-footer">Progress HEX · Coaching with Purpose</div>
   </div>
 </div>
@@ -490,10 +490,10 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
     <div class="page" id="pageCoach">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
         <div style="display:flex;align-items:center;gap:12px">
-          <button onclick="showPage('tracker')" style="background:var(--navy2);border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:9px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px">← Back</button>
+          <button onclick="showPage('tracker')" style="background:var(--navy2);border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:9px;cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px">← Back</button>
           <div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px">🎯 COACH DASHBOARD</div>
-            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px" id="coachWeekLbl"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-top:2px" id="coachWeekLbl"></div>
           </div>
         </div>
         <div style="display:flex;gap:8px">
@@ -501,7 +501,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
           <button onclick="changeCoachWeek(1)" style="background:var(--navy2);border:1px solid var(--border);color:var(--text2);width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:18px">›</button>
         </div>
       </div>
-      <div id="coachLoading" style="text-align:center;padding:40px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px">LOADING CLIENT DATA...</div>
+      <div id="coachLoading" style="text-align:center;padding:40px;font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);letter-spacing:2px">LOADING CLIENT DATA...</div>
       <div id="coachGrid"></div>
     </div>
 
@@ -981,7 +981,7 @@ function renderRightPanel(days,wEnt){
   const au=document.getElementById('wasteAudit');au.innerHTML='';
   [{l:'Productive',m:prod,cls:'tag-good'},{l:'Mixed',m:wEnt.filter(e=>e.waste==='mixed').reduce((s,e)=>s+(e.duration_mins||0),0),cls:'tag-mixed'},{l:'Wasted',m:waste,cls:'tag-waste'}].forEach(r=>{
     if(!r.m)return;
-    const div=document.createElement('div');div.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:11px;color:var(--text2)';
+    const div=document.createElement('div');div.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:16px;color:var(--text2)';
     div.innerHTML=`<span>${r.l}</span><div style="display:flex;align-items:center;gap:7px"><span style="font-family:\'DM Mono\',monospace">${mh(r.m)}</span><span class="tag ${r.cls}">${r.l}</span></div>`;
     au.appendChild(div);
   });
@@ -1029,11 +1029,11 @@ async function renderCoachDashboard(){
     grid.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--muted)">
       <div style="font-size:48px;margin-bottom:16px">👥</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;margin-bottom:8px">NO CLIENTS YET</div>
-      <div style="font-size:14px;color:var(--text2);margin-bottom:20px">Share the link below with your clients</div>
-      <div style="padding:16px;background:var(--navy2);border:1px solid var(--orange);border-radius:12px;font-family:'DM Mono',monospace;font-size:14px;color:var(--orange);cursor:pointer" onclick="navigator.clipboard.writeText('https://timesaverhex.netlify.app').then(()=>alert('✓ Link copied!'))">
+      <div style="font-size:16px;color:var(--text2);margin-bottom:20px">Share the link below with your clients</div>
+      <div style="padding:16px;background:var(--navy2);border:1px solid var(--orange);border-radius:12px;font-family:'DM Mono',monospace;font-size:16px;color:var(--orange);cursor:pointer" onclick="navigator.clipboard.writeText('https://timesaverhex.netlify.app').then(()=>alert('✓ Link copied!'))">
         📋 timesaverhex.netlify.app
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px">Click to copy</div>
+      <div style="font-size:16px;color:var(--muted);margin-top:8px">Click to copy</div>
     </div>`;
     return;
   }
@@ -1042,25 +1042,25 @@ async function renderCoachDashboard(){
   const activeClients=(profiles||[]).filter(p=>(weekEntries||[]).some(e=>e.user_id===p.user_id)).length;
   grid.innerHTML=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
     <div style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
-      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px">TOTAL CLIENTS</div>
+      <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-bottom:4px">TOTAL CLIENTS</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px">${totalClients}</div>
     </div>
     <div style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
-      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px">ACTIVE THIS WEEK</div>
+      <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-bottom:4px">ACTIVE THIS WEEK</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green)">${activeClients}</div>
     </div>
     <div style="background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
-      <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-bottom:4px">GONE QUIET</div>
+      <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-bottom:4px">GONE QUIET</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--red)">${totalClients-activeClients}</div>
     </div>
   </div>
 
   <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-    <button onclick="setCoachFilter('all')" id="cf_all" style="padding:8px 16px;border-radius:20px;border:1px solid var(--orange);background:var(--orange);color:#fff;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">ALL</button>
-    <button onclick="setCoachFilter('green')" id="cf_green" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">🟢 GOOD</button>
-    <button onclick="setCoachFilter('amber')" id="cf_amber" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">🟡 MEDIUM</button>
-    <button onclick="setCoachFilter('red')" id="cf_red" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">🔴 POOR</button>
-    <button onclick="setCoachFilter('inactive')" id="cf_inactive" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;transition:all 0.15s">⚪ INACTIVE</button>
+    <button onclick="setCoachFilter('all')" id="cf_all" style="padding:8px 16px;border-radius:20px;border:1px solid var(--orange);background:var(--orange);color:#fff;cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;transition:all 0.15s">ALL</button>
+    <button onclick="setCoachFilter('green')" id="cf_green" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;transition:all 0.15s">🟢 GOOD</button>
+    <button onclick="setCoachFilter('amber')" id="cf_amber" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;transition:all 0.15s">🟡 MEDIUM</button>
+    <button onclick="setCoachFilter('red')" id="cf_red" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;transition:all 0.15s">🔴 POOR</button>
+    <button onclick="setCoachFilter('inactive')" id="cf_inactive" style="padding:8px 16px;border-radius:20px;border:1px solid var(--border2);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:16px;letter-spacing:1px;transition:all 0.15s">⚪ INACTIVE</button>
   </div>
 
   <div id="coachCards"></div>`;
@@ -1102,8 +1102,8 @@ async function renderCoachDashboard(){
           <div style="display:flex;align-items:center;gap:12px">
             <div style="width:42px;height:42px;border-radius:50%;background:var(--og);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;flex-shrink:0">${(displayName[0]||'?').toUpperCase()}</div>
             <div>
-              <div style="font-size:15px;font-weight:600;color:var(--text)">${displayName}${profile.email===COACH_EMAIL?' <span style="background:var(--orange);color:#fff;font-size:9px;padding:2px 6px;border-radius:4px;font-family:DM Mono,monospace;letter-spacing:1px;vertical-align:middle">YOU</span>':''}</div>
-              <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">${profile.email||''}</div>
+              <div style="font-size:16px;font-weight:600;color:var(--text)">${displayName}${profile.email===COACH_EMAIL?' <span style="background:var(--orange);color:#fff;font-size:16px;padding:2px 6px;border-radius:4px;font-family:DM Mono,monospace;letter-spacing:1px;vertical-align:middle">YOU</span>':''}</div>
+              <div style="font-size:16px;color:var(--muted);font-family:'DM Mono',monospace">${profile.email||''}</div>
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
@@ -1137,34 +1137,34 @@ async function renderCoachDashboard(){
             <div style="font-size:16px">${ref?'✅':'⚠️'}</div>
           </div>
         </div>
-        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px">Last login: ${lastLogin}${run5k>0?` · 🏃 ${run5k} runs`:''}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--muted);margin-top:8px">Last login: ${lastLogin}${run5k>0?` · 🏃 ${run5k} runs`:''}</div>
       </div>
 
       <div id="${cardId}" style="display:none;border-top:1px solid var(--border);padding:16px">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px">Day by Day</div>
+        <div style="font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:12px">Day by Day</div>
         ${days.map((d,i)=>{
           const dayEnts=ents.filter(e=>e.day===dk(d)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
           const dayMins=dayEnts.reduce((s,e)=>s+(e.duration_mins||0),0);
           return`<div style="margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text2)">${DAYS_SHORT[i]} ${d.getDate()}</div>
-              <div style="font-family:'DM Mono',monospace;font-size:10px;color:${dayMins>0?'var(--orange)':'var(--muted)'}">${dayMins>0?mh(dayMins):'—'}</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;color:var(--text2)">${DAYS_SHORT[i]} ${d.getDate()}</div>
+              <div style="font-family:'DM Mono',monospace;font-size:16px;color:${dayMins>0?'var(--orange)':'var(--muted)'}">${dayMins>0?mh(dayMins):'—'}</div>
             </div>
             ${dayEnts.length===0
-              ?`<div style="font-size:11px;color:var(--border);font-family:'DM Mono',monospace;padding:6px 0">Nothing logged</div>`
+              ?`<div style="font-size:16px;color:var(--border);font-family:'DM Mono',monospace;padding:6px 0">Nothing logged</div>`
               :dayEnts.map(e=>{
                 const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';
                 const tagTxt=e.waste==='waste'?'Waste':e.waste==='mixed'?'Mixed':'Good';
                 return`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--navy3);border-radius:8px;margin-bottom:4px;border-left:3px solid ${e.cat_color||'var(--border)'}">
                   <div style="flex:1">
-                    <div style="font-size:13px;color:var(--text);font-weight:500;margin-bottom:3px">${e.task}</div>
+                    <div style="font-size:16px;color:var(--text);font-weight:500;margin-bottom:3px">${e.task}</div>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-                      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${ft(e.start_h,e.start_m)} – ${ft(e.end_h,e.end_m)}</span>
-                      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--orange)">${mh(e.duration_mins||0)}</span>
+                      <span style="font-family:'DM Mono',monospace;font-size:16px;color:var(--muted)">${ft(e.start_h,e.start_m)} – ${ft(e.end_h,e.end_m)}</span>
+                      <span style="font-family:'DM Mono',monospace;font-size:16px;color:var(--orange)">${mh(e.duration_mins||0)}</span>
                       <span class="tag ${tagCls}">${tagTxt}</span>
-                      ${e.cat_name?`<span style="font-size:10px;color:var(--muted);background:var(--navy4);padding:1px 6px;border-radius:10px">${e.cat_name}</span>`:''}
+                      ${e.cat_name?`<span style="font-size:16px;color:var(--muted);background:var(--navy4);padding:1px 6px;border-radius:10px">${e.cat_name}</span>`:''}
                     </div>
-                    ${e.notes?`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic">${e.notes}</div>`:''}
+                    ${e.notes?`<div style="font-size:16px;color:var(--muted);margin-top:4px;font-style:italic">${e.notes}</div>`:''}
                   </div>
                 </div>`;
               }).join('')
@@ -1172,18 +1172,18 @@ async function renderCoachDashboard(){
           </div>`;
         }).join('')}
 
-        <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-top:16px;margin-bottom:12px">Week Reflection</div>
+        <div style="font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-top:16px;margin-bottom:12px">Week Reflection</div>
         ${ref
           ?`<div style="background:rgba(255,107,26,0.06);border:1px solid rgba(255,107,26,0.2);border-radius:10px;padding:14px">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-                <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--orange)">SUBMITTED</div>
+                <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--orange)">SUBMITTED</div>
                 <div>${ref.rating?'★'.repeat(ref.rating)+'☆'.repeat(5-ref.rating):''}</div>
               </div>
-              ${ref.went_well?`<div style="margin-bottom:8px"><div style="font-size:9px;color:var(--green);font-family:'DM Mono',monospace;margin-bottom:3px">✓ WHAT WENT WELL</div><div style="font-size:13px;color:var(--text2)">${ref.went_well}</div></div>`:''}
-              ${ref.wasted_time?`<div style="margin-bottom:8px"><div style="font-size:9px;color:var(--red);font-family:'DM Mono',monospace;margin-bottom:3px">✗ WASTED TIME</div><div style="font-size:13px;color:var(--text2)">${ref.wasted_time}</div></div>`:''}
-              ${ref.next_week?`<div><div style="font-size:9px;color:var(--orange);font-family:'DM Mono',monospace;margin-bottom:3px">→ NEXT WEEK</div><div style="font-size:13px;color:var(--text2)">${ref.next_week}</div></div>`:''}
+              ${ref.went_well?`<div style="margin-bottom:8px"><div style="font-size:16px;color:var(--green);font-family:'DM Mono',monospace;margin-bottom:3px">✓ WHAT WENT WELL</div><div style="font-size:16px;color:var(--text2)">${ref.went_well}</div></div>`:''}
+              ${ref.wasted_time?`<div style="margin-bottom:8px"><div style="font-size:16px;color:var(--red);font-family:'DM Mono',monospace;margin-bottom:3px">✗ WASTED TIME</div><div style="font-size:16px;color:var(--text2)">${ref.wasted_time}</div></div>`:''}
+              ${ref.next_week?`<div><div style="font-size:16px;color:var(--orange);font-family:'DM Mono',monospace;margin-bottom:3px">→ NEXT WEEK</div><div style="font-size:16px;color:var(--text2)">${ref.next_week}</div></div>`:''}
             </div>`
-          :`<div style="background:rgba(232,79,79,0.06);border:1px solid rgba(232,79,79,0.2);border-radius:10px;padding:14px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--red)">⚠ No week review submitted</div>`
+          :`<div style="background:rgba(232,79,79,0.06);border:1px solid rgba(232,79,79,0.2);border-radius:10px;padding:14px;text-align:center;font-family:'DM Mono',monospace;font-size:16px;color:var(--red)">⚠ No week review submitted</div>`
         }
       </div>
     `;
@@ -1474,10 +1474,10 @@ function buildReviewContent(){
   const cont=document.getElementById('rvContent');
   if(reviewTab==='reflect'){
     cont.innerHTML=`
-      <div><label style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px">What went well?</label><textarea class="ref-field" id="refWell">${ref.went_well||''}</textarea></div>
-      <div><label style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px">What wasted your time?</label><textarea class="ref-field" id="refWaste">${ref.wasted_time||''}</textarea></div>
-      <div><label style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px">Next week I will...</label><textarea class="ref-field" id="refNext">${ref.next_week||''}</textarea></div>
-      <div><label style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:8px">Week Rating</label>
+      <div><label style="font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px">What went well?</label><textarea class="ref-field" id="refWell">${ref.went_well||''}</textarea></div>
+      <div><label style="font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px">What wasted your time?</label><textarea class="ref-field" id="refWaste">${ref.wasted_time||''}</textarea></div>
+      <div><label style="font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:6px">Next week I will...</label><textarea class="ref-field" id="refNext">${ref.next_week||''}</textarea></div>
+      <div><label style="font-family:'DM Mono',monospace;font-size:16px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);display:block;margin-bottom:8px">Week Rating</label>
       <div class="star-row">${[1,2,3,4,5].map(n=>`<button class="star-btn${(ref.rating||0)>=n?' active':''}" onclick="setRating(${n},'${wk}')">★</button>`).join('')}</div></div>
       <button class="btn-save" onclick="saveRef('${wk}')">Save Reflection</button>`;
     return;
@@ -1490,11 +1490,11 @@ function buildReviewContent(){
       const de=wEnt.filter(e=>e.day===dk(d)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
       if(!de.length)return'';
       const dLog=dailyLogs[dk(d)]||{};
-      const sleepRow=dLog.wake_time||dLog.bed_time?`<div style="display:flex;gap:12px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border2);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${dLog.wake_time?`🌅 Wake <span style="color:var(--text2)">${dLog.wake_time}</span>`:''} ${dLog.bed_time?`&nbsp;🌙 Bed <span style="color:var(--text2)">${dLog.bed_time}</span>`:''}</div>`:'';
+      const sleepRow=dLog.wake_time||dLog.bed_time?`<div style="display:flex;gap:12px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border2);font-family:'DM Mono',monospace;font-size:16px;color:var(--muted)">${dLog.wake_time?`🌅 Wake <span style="color:var(--text2)">${dLog.wake_time}</span>`:''} ${dLog.bed_time?`&nbsp;🌙 Bed <span style="color:var(--text2)">${dLog.bed_time}</span>`:''}</div>`:'';
       return`<div class="day-block"><div class="db-name">${DAYS_SHORT[i]} ${d.getDate()} · ${mh(de.reduce((s,e)=>s+(e.duration_mins||0),0))}</div>${sleepRow}${de.map(e=>{const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';return`<div class="db-entry"><span class="db-time">${ft(e.start_h,e.start_m)}–${ft(e.end_h,e.end_m)}</span><span style="flex:1">${e.task}</span><span class="tag ${tagCls}">${mh(e.duration_mins||0)}</span></div>`;}).join('')}</div>`;
     }).join('')}
-    ${ref.went_well?`<div style="background:rgba(62,207,114,0.08);border:1px solid rgba(62,207,114,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-bottom:6px">WHAT WENT WELL</div><div style="font-size:13px;color:var(--text2)">${ref.went_well}</div></div>`:''}
-    ${ref.next_week?`<div style="background:rgba(255,107,26,0.08);border:1px solid rgba(255,107,26,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--orange);margin-bottom:6px">NEXT WEEK</div><div style="font-size:13px;color:var(--text2)">${ref.next_week}</div></div>`:''}
+    ${ref.went_well?`<div style="background:rgba(62,207,114,0.08);border:1px solid rgba(62,207,114,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--green);margin-bottom:6px">WHAT WENT WELL</div><div style="font-size:16px;color:var(--text2)">${ref.went_well}</div></div>`:''}
+    ${ref.next_week?`<div style="background:rgba(255,107,26,0.08);border:1px solid rgba(255,107,26,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--orange);margin-bottom:6px">NEXT WEEK</div><div style="font-size:16px;color:var(--text2)">${ref.next_week}</div></div>`:''}
   </div>`;
 }
 function setRating(n,wk){refs[wk]={...refs[wk]||{},rating:n};buildReviewContent();}
