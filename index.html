@@ -243,7 +243,27 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .week-header{display:none;}
   .day-pills{display:none;}
   #mobileDayEntries{display:none;}
-  .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;}
+  .days-grid{display:none;}
+  /* Desktop day pills */
+  .desk-day-pills{display:flex;gap:6px;margin-bottom:14px;}
+  .desk-day-pill{flex:1;background:var(--navy3);border:1px solid var(--border2);border-radius:10px;padding:10px 6px;cursor:pointer;text-align:center;transition:all 0.15s;}
+  .desk-day-pill:hover{border-color:var(--orange);}
+  .desk-day-pill.active{background:rgba(255,107,26,0.12);border-color:var(--orange);}
+  .desk-day-pill .dp-name{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text2);}
+  .desk-day-pill.active .dp-name{color:var(--orange);}
+  .desk-day-pill .dp-date{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+  .desk-day-pill .dp-hrs{font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-top:2px;}
+  /* Desktop day entries */
+  .desk-day-entries{display:flex;flex-direction:column;gap:8px;}
+  .desk-day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+  .desk-day-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--orange);}
+  .desk-day-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+  .d-entry{background:var(--navy3);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s;}
+  .d-entry:hover{transform:translateY(-1px);}
+  .d-task{font-size:13px;font-weight:600;margin-bottom:5px;color:var(--text);}
+  .d-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .d-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);}
+  .d-dur{font-family:'DM Mono',monospace;font-size:12px;color:var(--orange);font-weight:600;}
   .day-col{background:var(--navy2);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-height:200px;}
   .day-header{padding:8px 10px;background:var(--navy3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .day-name-d{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text2);}
@@ -611,7 +631,7 @@ const sb=createClient(SB_URL,SB_KEY,{
   auth:{persistSession:true,storageKey:'sb-session',storage:window.localStorage}
 });
 
-let user=null, entries=[], cats=[], refs={}, dailyLogs={}, weekOffset=0, catFilter=null;
+let user=null, entries=[], cats=[], refs={}, dailyLogs={}, weekOffset=0, catFilter=null, deskDayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
 let editingId=null, selWaste='good', selColor=COLORS[0], isCoach=false;
 let activeDayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
 let reviewTab='preview';
@@ -894,27 +914,45 @@ function renderDesktop(){
     cl.appendChild(div);
   });
 
-  // Grid — catFilter only applies here on desktop
+  // Day pills + single day view
   const grid=document.getElementById('deskGrid');grid.innerHTML='';
+  // Pills row
+  const pillsRow=document.createElement('div');pillsRow.className='desk-day-pills';
   days.forEach((d,i)=>{
-    const dKey=dk(d);
-    const de=wEnt.filter(e=>e.day===dKey&&(!catFilter||e.cat_id===catFilter)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
-    const col=document.createElement('div');col.className='day-col';
-    col.innerHTML=`<div class="day-header"><div><div class="day-name-d">${DAYS_SHORT[i]}</div><div class="day-date-d">${fd(d)}</div></div><button class="day-add" onclick="openAddEntry(${i})">+</button></div><div class="day-entries-d" id="de_${i}"></div>`;
-    grid.appendChild(col);
-    const deEl=col.querySelector(`#de_${i}`);
-    de.forEach(entry=>{
+    const dm=wEnt.filter(e=>e.day===dk(d)).reduce((s,e)=>s+(e.duration_mins||0),0);
+    const pill=document.createElement('div');pill.className='desk-day-pill'+(i===deskDayIdx?' active':'');
+    pill.innerHTML=`<div class="dp-name">${DAYS_SHORT[i]}</div><div class="dp-date">${d.getDate()}</div>${dm>0?`<div class="dp-hrs">${mh(dm)}</div>`:''}`;
+    pill.onclick=()=>{deskDayIdx=i;renderDesktop();};
+    pillsRow.appendChild(pill);
+  });
+  grid.appendChild(pillsRow);
+  // Active day header
+  const activeDay=days[deskDayIdx];
+  const activeDKey=dk(activeDay);
+  const activeEnts=wEnt.filter(e=>e.day===activeDKey&&(!catFilter||e.cat_id===catFilter)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
+  const dayTot=activeEnts.reduce((s,e)=>s+(e.duration_mins||0),0);
+  const hdr=document.createElement('div');hdr.className='desk-day-header';
+  hdr.innerHTML=`<div><div class="desk-day-title">${activeDay.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div><div class="desk-day-sub">${dayTot>0?mh(dayTot)+' logged':'Nothing logged yet'}</div></div><button class="day-add" onclick="openAddEntry(${deskDayIdx})" style="font-size:22px;color:var(--orange);background:none;border:none;cursor:pointer">+</button>`;
+  grid.appendChild(hdr);
+  // Entries
+  const entCont=document.createElement('div');entCont.className='desk-day-entries';
+  if(!activeEnts.length){
+    entCont.innerHTML=`<div class="empty-day"><div class="empty-icon">⏱</div><div class="empty-txt">Nothing logged</div><div class="empty-sub">Tap + to add an entry</div></div>`;
+  } else {
+    activeEnts.forEach(entry=>{
       const cat=cats.find(c=>c.id===entry.cat_id);
       const tagCls=entry.waste==='waste'?'tag-waste':entry.waste==='mixed'?'tag-mixed':'tag-good';
+      const tagTxt=entry.waste==='waste'?'Waste':entry.waste==='mixed'?'Mixed':'Good';
       const locked=isLocked(entry.day);
       const card=document.createElement('div');card.className='d-entry';
       card.style.borderLeftColor=cat?cat.color:'var(--border)';
-      if(locked) card.style.opacity='0.75';
-      card.innerHTML=`<div class="d-task">${locked?'🔒 ':''}${entry.task}</div><div class="d-meta"><span class="d-time">${ft(entry.start_h,entry.start_m)}–${ft(entry.end_h,entry.end_m)}</span><span class="d-dur">${mh(entry.duration_mins||0)}</span><span class="tag ${tagCls}" style="font-size:8px">${entry.waste==='waste'?'Waste':entry.waste==='mixed'?'Mixed':'Good'}</span></div>`;
-      card.onclick=()=>openEditEntry(entry.id,i);
-      deEl.appendChild(card);
+      if(locked)card.style.opacity='0.75';
+      card.innerHTML=`<div class="d-task">${locked?'🔒 ':''}${entry.task}</div><div class="d-meta"><span class="d-time">${ft(entry.start_h,entry.start_m)} – ${ft(entry.end_h,entry.end_m)}</span><span class="d-dur">${mh(entry.duration_mins||0)}</span><span class="tag ${tagCls}">${tagTxt}</span>${cat?`<span class="ec-cat">${cat.name}</span>`:''}</div>`;
+      card.onclick=()=>openEditEntry(entry.id,deskDayIdx);
+      entCont.appendChild(card);
     });
-  });
+  }
+  grid.appendChild(entCont);
   renderRightPanel(days,wEnt);
 }
 
