@@ -67,6 +67,11 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 .tb-week-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--text2);min-width:90px;text-align:center;}
 .tb-total{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--orange);}
 .tb-signout{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:7px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;}
+.tb-sleep{display:flex;gap:6px;align-items:center;}
+.tb-sleep-btn{background:var(--navy3);border:1px solid var(--border2);color:var(--text2);padding:6px 10px;border-radius:9px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.5px;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:4px;line-height:1;}
+.tb-sleep-btn:active{transform:scale(0.95);}
+.tb-sleep-btn.logged{border-color:var(--orange);color:var(--orange);background:rgba(255,107,26,0.1);}
+.tb-sleep-time{font-size:10px;}
 
 /* ── PAGES ── */
 .pages{flex:1;overflow:hidden;position:relative;}
@@ -356,6 +361,10 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
         <span>HEX</span>
       </div>
     </div>
+    <div class="tb-sleep">
+      <button class="tb-sleep-btn" id="wakeBtn" onclick="logWakeTime()" title="Log wake time">🌅 <span class="tb-sleep-time" id="wakeLbl">Wake</span></button>
+      <button class="tb-sleep-btn" id="bedBtn" onclick="logBedTime()" title="Log bed time">🌙 <span class="tb-sleep-time" id="bedLbl">Bed</span></button>
+    </div>
     <div class="tb-right">
       <!-- Desktop only -->
       <div class="tb-week">
@@ -579,7 +588,7 @@ const sb=createClient(SB_URL,SB_KEY,{
   auth:{persistSession:true,storageKey:'sb-session',storage:window.localStorage}
 });
 
-let user=null, entries=[], cats=[], refs={}, weekOffset=0, catFilter=null;
+let user=null, entries=[], cats=[], refs={}, dailyLogs={}, weekOffset=0, catFilter=null;
 let editingId=null, selWaste='good', selColor=COLORS[0], isCoach=false;
 let activeDayIdx=new Date().getDay()===0?6:new Date().getDay()-1;
 let reviewTab='preview';
@@ -662,7 +671,7 @@ async function initApp(u){
     document.getElementById('coachMenuBtn').style.display='block';
   }
   await sb.from('profiles').upsert({user_id:u.id,full_name:name,email:u.email,last_login:new Date().toISOString()},{onConflict:'user_id'});
-  await Promise.all([loadCats(),loadEntries(),loadRefs()]);
+  await Promise.all([loadCats(),loadEntries(),loadRefs(),loadDailyLogs()]);
   if(cats.length===0) await seedCats();
   render();
 }
@@ -670,6 +679,44 @@ async function loadEntries(){const{data}=await sb.from('entries').select('*').eq
 async function loadCats(){const{data}=await sb.from('categories').select('*').eq('user_id',user.id).order('created_at');cats=data||[];}
 async function loadRefs(){const{data}=await sb.from('reflections').select('*').eq('user_id',user.id);refs={};(data||[]).forEach(r=>{refs[r.week_of]=r;});}
 async function seedCats(){const rows=DEFAULT_CATS.map(c=>({user_id:user.id,name:c.name,color:c.color}));const{data}=await sb.from('categories').insert(rows).select();cats=data||[];}
+
+
+// ── DAILY LOGS (wake / bed time) ──
+async function loadDailyLogs(){
+  const{data}=await sb.from('daily_logs').select('*').eq('user_id',user.id);
+  dailyLogs={};(data||[]).forEach(r=>{dailyLogs[r.day]=r;});
+  updateSleepButtons();
+}
+function updateSleepButtons(){
+  const today=dk(new Date());
+  const log=dailyLogs[today]||{};
+  const wb=document.getElementById('wakeBtn'),bb=document.getElementById('bedBtn');
+  const wl=document.getElementById('wakeLbl'),bl=document.getElementById('bedLbl');
+  if(log.wake_time){wl.textContent=log.wake_time;wb.classList.add('logged');}
+  else{wl.textContent='Wake';wb.classList.remove('logged');}
+  if(log.bed_time){bl.textContent=log.bed_time;bb.classList.add('logged');}
+  else{bl.textContent='Bed';bb.classList.remove('logged');}
+}
+async function logWakeTime(){
+  const today=dk(new Date());
+  const existing=dailyLogs[today]||{};
+  if(existing.wake_time){if(!confirm('Reset wake time to now?'))return;}
+  const now=new Date();
+  const t=ft(now.getHours(),now.getMinutes());
+  const row={user_id:user.id,day:today,wake_time:t,bed_time:existing.bed_time||null};
+  await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
+  dailyLogs[today]=row;updateSleepButtons();
+}
+async function logBedTime(){
+  const today=dk(new Date());
+  const existing=dailyLogs[today]||{};
+  if(existing.bed_time){if(!confirm('Reset bed time to now?'))return;}
+  const now=new Date();
+  const t=ft(now.getHours(),now.getMinutes());
+  const row={user_id:user.id,day:today,wake_time:existing.wake_time||null,bed_time:t};
+  await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
+  dailyLogs[today]=row;updateSleepButtons();
+}
 
 // ── HELPERS ──
 function dk(d){return d.toISOString().split('T')[0];}
