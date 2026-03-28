@@ -932,12 +932,12 @@ function renderDesktop(){
   const activeEnts=wEnt.filter(e=>e.day===activeDKey&&(!catFilter||e.cat_id===catFilter)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
   const dayTot=activeEnts.reduce((s,e)=>s+(e.duration_mins||0),0);
   const hdr=document.createElement('div');hdr.className='desk-day-header';
-  hdr.innerHTML=`<div><div class="desk-day-title">${activeDay.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div><div class="desk-day-sub">${dayTot>0?mh(dayTot)+' logged':'Nothing logged yet'}</div></div><button onclick="openAddEntry(${deskDayIdx})" style="background:var(--og);border:none;color:#fff;padding:10px 18px;border-radius:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:2px">+ Start Logging Time</button>`;
+  hdr.innerHTML=`<div><div class="desk-day-title">${activeDay.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</div><div class="desk-day-sub">${dayTot>0?mh(dayTot)+' logged':'Nothing logged yet'}</div></div>`;
   grid.appendChild(hdr);
   // Entries
   const entCont=document.createElement('div');entCont.className='desk-day-entries';
   if(!activeEnts.length){
-    entCont.innerHTML=`<div class="empty-day"><div class="empty-icon">⏱</div><div class="empty-txt">Nothing logged</div><div class="empty-sub">Tap + to add an entry</div></div>`;
+    entCont.innerHTML=`<div class="empty-day"><div class="empty-icon">⏱</div><div class="empty-txt">Nothing logged</div><div class="empty-sub">Start tracking your day</div><button onclick="openAddEntry(${deskDayIdx})" style="margin-top:16px;background:var(--og);border:none;color:#fff;padding:12px 24px;border-radius:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px">+ Start Logging Time</button></div>`;
   } else {
     activeEnts.forEach(entry=>{
       const cat=cats.find(c=>c.id===entry.cat_id);
@@ -950,6 +950,14 @@ function renderDesktop(){
       card.innerHTML=`<div class="d-task">${locked?'🔒 ':''}${entry.task}</div><div class="d-meta"><span class="d-time">${ft(entry.start_h,entry.start_m)} – ${ft(entry.end_h,entry.end_m)}</span><span class="d-dur">${mh(entry.duration_mins||0)}</span><span class="tag ${tagCls}">${tagTxt}</span>${cat?`<span class="ec-cat">${cat.name}</span>`:''}</div>`;
       card.onclick=()=>openEditEntry(entry.id,deskDayIdx);
       entCont.appendChild(card);
+      // Add another entry button after each card
+      const addBtn=document.createElement('button');
+      addBtn.onclick=()=>openAddEntry(deskDayIdx);
+      addBtn.style.cssText='width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:10px;border-radius:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;transition:all 0.15s;';
+      addBtn.textContent='+ Log Another Entry';
+      addBtn.onmouseover=()=>{addBtn.style.borderColor='var(--orange)';addBtn.style.color='var(--orange)';};
+      addBtn.onmouseout=()=>{addBtn.style.borderColor='var(--border2)';addBtn.style.color='var(--muted)';};
+      entCont.appendChild(addBtn);
     });
   }
   grid.appendChild(entCont);
