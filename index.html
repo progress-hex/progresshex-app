@@ -499,6 +499,22 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
       <div class="bn-icon">🎯</div><div class="bn-label">Coach</div>
     </button>
   </div>
+
+<!-- SLEEP TIME PICKER -->
+<div class="overlay" id="sleepOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2 id="sleepSheetTitle">🌅 Wake Time</h2>
+    <div class="mfg">
+      <label>What time did you <span id="sleepTypeLabel">wake up</span>?</label>
+      <select id="sleepTimeSelect"></select>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn-save" onclick="saveSleepTime()">Save</button>
+      <button class="btn-cancel" onclick="document.getElementById('sleepOverlay').classList.remove('open')">Cancel</button>
+    </div>
+  </div>
+</div>
 </div><!-- /app -->
 
 <!-- FAB -->
@@ -695,7 +711,7 @@ async function loadDailyLogs(){
 function updateSleepButtons(){
   const today=dk(new Date());
   const now=new Date();
-  const dayName=now.toLocaleDateString('en-GB',{weekday:'short'});
+  const dayName=now.toLocaleDateString('en-GB',{weekday:'long'});
   const log=dailyLogs[today]||{};
   const wb=document.getElementById('wakeBtn'),bb=document.getElementById('bedBtn');
   if(log.wake_time){
@@ -720,26 +736,40 @@ async function clearSleepTime(type){
   await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
   dailyLogs[today]=row;updateSleepButtons();
 }
-async function logWakeTime(){
+let sleepType=null;
+function openSleepPicker(type){
+  sleepType=type;
+  const isWake=type==='wake';
+  document.getElementById('sleepSheetTitle').textContent=isWake?'🌅 Wake Time':'🌙 Bed Time';
+  document.getElementById('sleepTypeLabel').textContent=isWake?'wake up':'go to bed';
+  // Build time options — wake: 4am-11am, bed: 8pm-2am
+  const sel=document.getElementById('sleepTimeSelect');sel.innerHTML='';
+  const opts=[];
+  if(isWake){for(let h=4;h<=11;h++)for(let m=0;m<60;m+=15)opts.push({h,m});}
+  else{const hrs=[20,21,22,23,0,1,2];hrs.forEach(h=>{for(let m=0;m<60;m+=15)opts.push({h,m});});}
+  opts.forEach(o=>{const op=document.createElement('option');op.value=ft(o.h,o.m);op.textContent=ft(o.h,o.m);sel.appendChild(op);});
+  // Default to nearest existing or sensible default
   const today=dk(new Date());
   const existing=dailyLogs[today]||{};
-  
-  const now=new Date();
-  const t=ft(now.getHours(),now.getMinutes());
-  const row={user_id:user.id,day:today,wake_time:t,bed_time:existing.bed_time||null};
-  await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
-  dailyLogs[today]=row;updateSleepButtons();
+  const existing_t=isWake?existing.wake_time:existing.bed_time;
+  if(existing_t){const found=[...sel.options].find(o=>o.value===existing_t);if(found)sel.value=existing_t;}
+  else{sel.value=isWake?ft(7,0):ft(22,0);}
+  document.getElementById('sleepOverlay').classList.add('open');
 }
-async function logBedTime(){
+async function saveSleepTime(){
   const today=dk(new Date());
   const existing=dailyLogs[today]||{};
-  
-  const now=new Date();
-  const t=ft(now.getHours(),now.getMinutes());
-  const row={user_id:user.id,day:today,wake_time:existing.wake_time||null,bed_time:t};
+  const t=document.getElementById('sleepTimeSelect').value;
+  const row={user_id:user.id,day:today,
+    wake_time:sleepType==='wake'?t:existing.wake_time||null,
+    bed_time:sleepType==='bed'?t:existing.bed_time||null};
   await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
-  dailyLogs[today]=row;updateSleepButtons();
+  dailyLogs[today]=row;
+  document.getElementById('sleepOverlay').classList.remove('open');
+  updateSleepButtons();
 }
+function logWakeTime(){openSleepPicker('wake');}
+function logBedTime(){openSleepPicker('bed');}
 
 // ── HELPERS ──
 function dk(d){return d.toISOString().split('T')[0];}
