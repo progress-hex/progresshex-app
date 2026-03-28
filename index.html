@@ -525,9 +525,8 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   <div class="sheet">
     <div class="sheet-handle"></div>
     <h2 id="sheetTitle">Log Time</h2>
-    <div class="mfg"><label>Task / Activity</label><input type="text" id="taskIn" placeholder="e.g. Client coaching call" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('catIn').focus();}"/></div>
+    <div class="mfg"><label>Category</label><select id="catIn" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('dayIn').focus();}"></select></div>
     <div class="mfg"><label>Day</label><select id="dayIn"></select></div>
-    <div class="mfg"><label>Category</label><select id="catIn" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('startIn').focus();}"></select></div>
     <div class="time-row">
       <div class="mfg" style="margin:0"><label>Start Time</label><select id="startIn" onchange="calcDur()" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('endIn').focus();}"></select></div>
       <div class="mfg" style="margin:0"><label>End Time</label><select id="endIn" onchange="calcDur()" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('notesIn').focus();}"></select></div>
@@ -1234,7 +1233,7 @@ function setWaste(v){
 }
 function openAddEntry(di){
   editingId=null;selWaste='good';
-  document.getElementById('taskIn').disabled=false;
+  
   document.getElementById('notesIn').disabled=false;
   document.getElementById('catIn').disabled=false;
   document.getElementById('startIn').disabled=false;
@@ -1243,7 +1242,7 @@ function openAddEntry(di){
   document.getElementById('entryOverlay').querySelector('.btn-save').style.display='flex';
   document.getElementById('entryOverlay').querySelector('.btn-cancel').textContent='Cancel';
   document.getElementById('sheetTitle').textContent='Log Time';
-  document.getElementById('taskIn').value='';
+  
   document.getElementById('notesIn').value='';
   document.getElementById('delBtn').style.display='none';
   // Default times: nearest 15-min slot to now, +1hr for end
@@ -1255,7 +1254,7 @@ function openAddEntry(di){
   if(eh>DAY_END){eh=DAY_END;em=0;}
   populateDaySelect(di,null);populateCatSelect(null);populateTimes(sh,sm,eh,em);setWaste('good');
   document.getElementById('entryOverlay').classList.add('open');
-  setTimeout(()=>document.getElementById('taskIn').focus(),300);
+  setTimeout(()=>document.getElementById('catIn').focus(),300);
 }
 
 function isLocked(dayStr){
@@ -1272,9 +1271,9 @@ function openEditEntry(id,di){
   if(isLocked(e.day)){
     editingId=null;
     document.getElementById('sheetTitle').textContent='🔒 Locked Entry';
-    document.getElementById('taskIn').value=e.task;
+    
     document.getElementById('notesIn').value=e.notes||'';
-    document.getElementById('taskIn').disabled=true;
+    
     document.getElementById('notesIn').disabled=true;
     document.getElementById('catIn').disabled=true;
     document.getElementById('startIn').disabled=true;
@@ -1289,7 +1288,7 @@ function openEditEntry(id,di){
     return;
   }
 
-  document.getElementById('taskIn').disabled=false;
+  
   document.getElementById('notesIn').disabled=false;
   document.getElementById('catIn').disabled=false;
   document.getElementById('startIn').disabled=false;
@@ -1300,7 +1299,7 @@ function openEditEntry(id,di){
 
   editingId=id;selWaste=e.waste||'good';
   document.getElementById('sheetTitle').textContent='Edit Entry';
-  document.getElementById('taskIn').value=e.task;
+  
   document.getElementById('notesIn').value=e.notes||'';
   document.getElementById('delBtn').style.display='block';
   populateDaySelect(di,e.day);populateCatSelect(e.cat_id);
@@ -1310,7 +1309,7 @@ function openEditEntry(id,di){
 function closeEntry(){
   document.getElementById('entryOverlay').classList.remove('open');
   editingId=null;
-  document.getElementById('taskIn').disabled=false;
+  
   document.getElementById('notesIn').disabled=false;
   document.getElementById('catIn').disabled=false;
   document.getElementById('startIn').disabled=false;
@@ -1322,18 +1321,19 @@ function closeEntry(){
   document.getElementById('sheetTitle').textContent='Log Time';
   document.getElementById('delBtn').style.display='none';
 }
+function catNameFallback(){const sel=document.getElementById('catIn');return sel.options[sel.selectedIndex]?.text||'Entry';}
 async function saveEntry(){
   const saveBtn=document.getElementById('entryOverlay').querySelector('.btn-save');
   const resetBtn=()=>{saveBtn.disabled=false;saveBtn.textContent='Save';saveBtn.style.opacity='1';};
   if(saveBtn.disabled) return;
-  const task=document.getElementById('taskIn').value.trim();
+  const notes_raw=document.getElementById('notesIn').value.trim();
   const day=document.getElementById('dayIn').value;
   const catId=document.getElementById('catIn').value;
-  const notes=document.getElementById('notesIn').value.trim();
+  const notes=notes_raw;const task=notes_raw.substring(0,80)||catNameFallback();
   const sv=JSON.parse(document.getElementById('startIn').value||'null');
   const ev=JSON.parse(document.getElementById('endIn').value||'null');
-  if(!task||!day||!sv||!ev){resetBtn();return;}
-  if(!notes){alert('Please add a note — describe what you actually did.');resetBtn();return;}
+  if(!day||!sv||!ev){resetBtn();return;}
+  if(!notes_raw){alert('Please add notes — describe what you did.');resetBtn();return;}
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
   if(dur<=0){alert('End time must be after start time');resetBtn();return;}
   if(!editingId && isLocked(day)){
