@@ -1529,7 +1529,7 @@ function exportToExcel(){
 }
 
 // ── CLOSE OVERLAYS ON BG CLICK ──
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o){o.classList.remove('open');editingId=null;editingCatId=null;}}));
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o&&o.id!=='entryOverlay'){o.classList.remove('open');editingId=null;editingCatId=null;}}));
 
 // ── BOOT ──
 (async()=>{
