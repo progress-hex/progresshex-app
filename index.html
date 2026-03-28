@@ -674,7 +674,7 @@ async function seedCats(){const rows=DEFAULT_CATS.map(c=>({user_id:user.id,name:
 // ── HELPERS ──
 function dk(d){return d.toISOString().split('T')[0];}
 function toM(h,m){return h*60+(m||0);}
-function mh(m){if(m<=0)return'0';const h=Math.floor(m/60),mn=m%60;return mn>0?`${h}.${Math.round(mn/60*10)}`:`${h}`;}
+function mh(m){if(m<=0)return'0';const h=Math.floor(m/60),mn=m%60;if(h===0)return`${mn}m`;if(mn===0)return`${h}h`;return`${h}h ${mn}m`;}
 function ft(h,m){const ap=h<12?'am':h===12?'pm':'pm',hd=h>12?h-12:h===0?12:h;return`${hd}:${m===0?'00':m<10?'0'+m:m}${ap}`;}
 function fd(d){return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
 function getWeek(off=0){
@@ -706,7 +706,7 @@ function renderMobile(){
     const de=wEnt.filter(e=>e.day===dk(d));
     const dm=de.reduce((s,e)=>s+(e.duration_mins||0),0);
     const p=document.createElement('div');p.className='day-pill'+(i===activeDayIdx?' active':'');
-    p.innerHTML=`<div class="dp-name">${DAYS_SHORT[i]}</div><div class="dp-date">${d.getDate()}</div>${dm>0?`<div class="dp-hrs">${mh(dm)}h</div>`:`<div class="dp-dot"></div>`}`;
+    p.innerHTML=`<div class="dp-name">${DAYS_SHORT[i]}</div><div class="dp-date">${d.getDate()}</div>${dm>0?`<div class="dp-hrs">${mh(dm)}</div>`:`<div class="dp-dot"></div>`}`;
     p.onclick=()=>{activeDayIdx=i;renderMobile();};
     pills.appendChild(p);
   });
@@ -726,7 +726,7 @@ function renderMobile(){
     const card=document.createElement('div');card.className='entry-card';
     card.style.borderLeftColor=cat?cat.color:'var(--border)';
     if(locked) card.style.opacity='0.8';
-    card.innerHTML=`<div class="ec-task">${locked?'🔒 ':''}${e.task}</div><div class="ec-row"><span class="ec-time">${ft(e.start_h,e.start_m)} – ${ft(e.end_h,e.end_m)}</span><span class="ec-dur">${mh(e.duration_mins||0)}h</span><span class="tag ${tagCls}">${tagTxt}</span>${cat?`<span class="ec-cat">${cat.name}</span>`:''}</div>`;
+    card.innerHTML=`<div class="ec-task">${locked?'🔒 ':''}${e.task}</div><div class="ec-row"><span class="ec-time">${ft(e.start_h,e.start_m)} – ${ft(e.end_h,e.end_m)}</span><span class="ec-dur">${mh(e.duration_mins||0)}</span><span class="tag ${tagCls}">${tagTxt}</span>${cat?`<span class="ec-cat">${cat.name}</span>`:''}</div>`;
     card.onclick=()=>openEditEntry(e.id,activeDayIdx);
     cont.appendChild(card);
   });
@@ -740,9 +740,9 @@ function renderStats(){
   const prod=wEnt.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
   const waste=wEnt.filter(e=>e.waste==='waste').reduce((s,e)=>s+(e.duration_mins||0),0);
   const eff=tot>0?Math.round(prod/tot*100):0;
-  document.getElementById('sTot').textContent=mh(tot)+'h';
-  document.getElementById('sProd').textContent=mh(prod)+'h';
-  document.getElementById('sWaste').textContent=mh(waste)+'h';
+  document.getElementById('sTot').textContent=mh(tot);
+  document.getElementById('sProd').textContent=mh(prod);
+  document.getElementById('sWaste').textContent=mh(waste);
   document.getElementById('sEff').textContent=eff+'%';
   const bc=document.getElementById('sByCat');bc.innerHTML='';
   cats.forEach(cat=>{
@@ -750,7 +750,7 @@ function renderStats(){
     if(!m)return;
     const pct=tot>0?Math.round(m/tot*100):0;
     const row=document.createElement('div');row.className='cat-bar-row';
-    row.innerHTML=`<div class="cbr-dot" style="background:${cat.color}"></div><div class="cbr-name">${cat.name}</div><div class="cbr-bar"><div class="cbr-fill" style="width:${pct}%;background:${cat.color}"></div></div><div class="cbr-hrs">${mh(m)}h</div>`;
+    row.innerHTML=`<div class="cbr-dot" style="background:${cat.color}"></div><div class="cbr-name">${cat.name}</div><div class="cbr-bar"><div class="cbr-fill" style="width:${pct}%;background:${cat.color}"></div></div><div class="cbr-hrs">${mh(m)}</div>`;
     bc.appendChild(row);
   });
 }
@@ -763,7 +763,7 @@ function renderMenuCats(){
   cats.forEach(cat=>{
     const m=wEnt.filter(e=>e.cat_id===cat.id).reduce((s,e)=>s+(e.duration_mins||0),0);
     const item=document.createElement('div');item.className='cat-item';
-    item.innerHTML=`<div class="ci-dot" style="background:${cat.color}"></div><div class="ci-name">${cat.name}</div><div class="ci-hrs">${m>0?mh(m)+'h':''}</div><button class="ci-edit" onclick="openEditCat(event,'${cat.id}')">✏️</button><button class="ci-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
+    item.innerHTML=`<div class="ci-dot" style="background:${cat.color}"></div><div class="ci-name">${cat.name}</div><div class="ci-hrs">${m>0?mh(m):''}</div><button class="ci-edit" onclick="openEditCat(event,'${cat.id}')">✏️</button><button class="ci-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
     list.appendChild(item);
   });
 }
@@ -786,7 +786,7 @@ function renderDesktop(){
     const m=wEnt.filter(e=>e.cat_id===cat.id).reduce((s,e)=>s+(e.duration_mins||0),0);
     const isActive=catFilter===cat.id;
     const div=document.createElement('div');div.className='ds-cat'+(isActive?' active':'');
-    div.innerHTML=`<div class="ds-dot" style="background:${cat.color}"></div><div class="ds-name" style="${isActive?'color:var(--orange);font-weight:600':''}">${cat.name}</div><div class="ds-hrs">${m>0?mh(m)+'h':''}</div><button class="ds-edit" onclick="openEditCat(event,'${cat.id}')">✏</button><button class="ds-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
+    div.innerHTML=`<div class="ds-dot" style="background:${cat.color}"></div><div class="ds-name" style="${isActive?'color:var(--orange);font-weight:600':''}">${cat.name}</div><div class="ds-hrs">${m>0?mh(m):''}</div><button class="ds-edit" onclick="openEditCat(event,'${cat.id}')">✏</button><button class="ds-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
     div.onclick=(e)=>{
       if(e.target.classList.contains('ds-del'))return;
       // Toggle: click same category again to clear filter
@@ -812,7 +812,7 @@ function renderDesktop(){
       const card=document.createElement('div');card.className='d-entry';
       card.style.borderLeftColor=cat?cat.color:'var(--border)';
       if(locked) card.style.opacity='0.75';
-      card.innerHTML=`<div class="d-task">${locked?'🔒 ':''}${entry.task}</div><div class="d-meta"><span class="d-time">${ft(entry.start_h,entry.start_m)}–${ft(entry.end_h,entry.end_m)}</span><span class="d-dur">${mh(entry.duration_mins||0)}h</span><span class="tag ${tagCls}" style="font-size:8px">${entry.waste==='waste'?'Waste':entry.waste==='mixed'?'Mixed':'Good'}</span></div>`;
+      card.innerHTML=`<div class="d-task">${locked?'🔒 ':''}${entry.task}</div><div class="d-meta"><span class="d-time">${ft(entry.start_h,entry.start_m)}–${ft(entry.end_h,entry.end_m)}</span><span class="d-dur">${mh(entry.duration_mins||0)}</span><span class="tag ${tagCls}" style="font-size:8px">${entry.waste==='waste'?'Waste':entry.waste==='mixed'?'Mixed':'Good'}</span></div>`;
       card.onclick=()=>openEditEntry(entry.id,i);
       deEl.appendChild(card);
     });
@@ -828,7 +828,7 @@ function renderRightPanel(days,wEnt){
     const dm=de.reduce((s,e)=>s+(e.duration_mins||0),0);
     const wrap=document.createElement('div');wrap.className='tl-day';
     const bid='tlb_'+i;
-    wrap.innerHTML=`<div class="tl-lbl"><span>${DAYS_SHORT[i]} ${d.getDate()}</span>${dm>0?`<span style="color:var(--text)">${mh(dm)}h</span>`:''}</div><div class="tl-bar" id="${bid}"></div>`;
+    wrap.innerHTML=`<div class="tl-lbl"><span>${DAYS_SHORT[i]} ${d.getDate()}</span>${dm>0?`<span style="color:var(--text)">${mh(dm)}</span>`:''}</div><div class="tl-bar" id="${bid}"></div>`;
     tl.appendChild(wrap);
     requestAnimationFrame(()=>{
       const bar=document.getElementById(bid);if(!bar)return;
@@ -852,19 +852,19 @@ function renderRightPanel(days,wEnt){
     if(!m)return;
     const pct=tot>0?Math.round(m/tot*100):0;
     const row=document.createElement('div');row.className='bd-row';
-    row.innerHTML=`<div class="bd-dot" style="background:${cat.color}"></div><div class="bd-name">${cat.name}</div><div class="bd-bw"><div class="bd-bf" style="width:${pct}%;background:${cat.color}"></div></div><div class="bd-h">${mh(m)}h</div>`;
+    row.innerHTML=`<div class="bd-dot" style="background:${cat.color}"></div><div class="bd-name">${cat.name}</div><div class="bd-bw"><div class="bd-bf" style="width:${pct}%;background:${cat.color}"></div></div><div class="bd-h">${mh(m)}</div>`;
     bd.appendChild(row);
   });
   // Efficiency
   const prod=wEnt.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
   const waste=wEnt.filter(e=>e.waste==='waste').reduce((s,e)=>s+(e.duration_mins||0),0);
-  document.getElementById('prodHrs').innerHTML=mh(prod)+'<span style="font-size:14px">h</span>';
-  document.getElementById('wasteHrs').innerHTML=mh(waste)+'<span style="font-size:14px">h</span>';
+  document.getElementById('prodHrs').innerHTML=mh(prod);
+  document.getElementById('wasteHrs').innerHTML=mh(waste);
   const au=document.getElementById('wasteAudit');au.innerHTML='';
   [{l:'Productive',m:prod,cls:'tag-good'},{l:'Mixed',m:wEnt.filter(e=>e.waste==='mixed').reduce((s,e)=>s+(e.duration_mins||0),0),cls:'tag-mixed'},{l:'Wasted',m:waste,cls:'tag-waste'}].forEach(r=>{
     if(!r.m)return;
     const div=document.createElement('div');div.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:11px;color:var(--text2)';
-    div.innerHTML=`<span>${r.l}</span><div style="display:flex;align-items:center;gap:7px"><span style="font-family:\'DM Mono\',monospace">${mh(r.m)}h</span><span class="tag ${r.cls}">${r.l}</span></div>`;
+    div.innerHTML=`<span>${r.l}</span><div style="display:flex;align-items:center;gap:7px"><span style="font-family:\'DM Mono\',monospace">${mh(r.m)}</span><span class="tag ${r.cls}">${r.l}</span></div>`;
     au.appendChild(div);
   });
 }
@@ -996,15 +996,15 @@ async function renderCoachDashboard(){
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <div style="background:var(--navy3);border-radius:8px;padding:8px 12px;text-align:center;flex:1;min-width:60px">
             <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--muted);margin-bottom:2px">TOTAL</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px">${mh(tot)}h</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px">${mh(tot)}</div>
           </div>
           <div style="background:var(--navy3);border-radius:8px;padding:8px 12px;text-align:center;flex:1;min-width:60px">
             <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--muted);margin-bottom:2px">PRODUCTIVE</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--green)">${mh(prod)}h</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--green)">${mh(prod)}</div>
           </div>
           <div style="background:var(--navy3);border-radius:8px;padding:8px 12px;text-align:center;flex:1;min-width:60px">
             <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--muted);margin-bottom:2px">WASTED</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--red)">${mh(waste)}h</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--red)">${mh(waste)}</div>
           </div>
           <div style="background:var(--navy3);border-radius:8px;padding:8px 12px;text-align:center;flex:1;min-width:60px">
             <div style="font-family:'DM Mono',monospace;font-size:7px;color:var(--muted);margin-bottom:2px">EFFICIENCY</div>
@@ -1030,7 +1030,7 @@ async function renderCoachDashboard(){
           return`<div style="margin-bottom:10px">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
               <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text2)">${DAYS_SHORT[i]} ${d.getDate()}</div>
-              <div style="font-family:'DM Mono',monospace;font-size:10px;color:${dayMins>0?'var(--orange)':'var(--muted)'}">${dayMins>0?mh(dayMins)+'h':'—'}</div>
+              <div style="font-family:'DM Mono',monospace;font-size:10px;color:${dayMins>0?'var(--orange)':'var(--muted)'}">${dayMins>0?mh(dayMins):'—'}</div>
             </div>
             ${dayEnts.length===0
               ?`<div style="font-size:11px;color:var(--border);font-family:'DM Mono',monospace;padding:6px 0">Nothing logged</div>`
@@ -1042,7 +1042,7 @@ async function renderCoachDashboard(){
                     <div style="font-size:13px;color:var(--text);font-weight:500;margin-bottom:3px">${e.task}</div>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
                       <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${ft(e.start_h,e.start_m)} – ${ft(e.end_h,e.end_m)}</span>
-                      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--orange)">${mh(e.duration_mins||0)}h</span>
+                      <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--orange)">${mh(e.duration_mins||0)}</span>
                       <span class="tag ${tagCls}">${tagTxt}</span>
                       ${e.cat_name?`<span style="font-size:10px;color:var(--muted);background:var(--navy4);padding:1px 6px;border-radius:10px">${e.cat_name}</span>`:''}
                     </div>
@@ -1123,7 +1123,7 @@ function calcDur(){
   const ev=JSON.parse(document.getElementById('endIn').value||'null');
   if(!sv||!ev)return;
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
-  document.getElementById('durBadge').textContent=dur>0?`Duration: ${mh(dur)}h`:'Duration: —';
+  document.getElementById('durBadge').textContent=dur>0?`Duration: ${mh(dur)}`:'Duration: —';
 }
 function setWaste(v){
   selWaste=v;
@@ -1351,7 +1351,7 @@ function buildReview(){
   const tot=wEnt.reduce((s,e)=>s+(e.duration_mins||0),0);
   const prod=wEnt.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
   const eff=tot>0?Math.round(prod/tot*100):0;
-  document.getElementById('rvKpis').innerHTML=`<div class="rk"><div class="rk-label">Total</div><div class="rk-val" style="color:var(--text)">${mh(tot)}h</div></div><div class="rk"><div class="rk-label">Productive</div><div class="rk-val" style="color:var(--green)">${mh(prod)}h</div></div><div class="rk"><div class="rk-label">Efficiency</div><div class="rk-val" style="color:var(--orange)">${eff}%</div></div>`;
+  document.getElementById('rvKpis').innerHTML=`<div class="rk"><div class="rk-label">Total</div><div class="rk-val" style="color:var(--text)">${mh(tot)}</div></div><div class="rk"><div class="rk-label">Productive</div><div class="rk-val" style="color:var(--green)">${mh(prod)}</div></div><div class="rk"><div class="rk-label">Efficiency</div><div class="rk-val" style="color:var(--orange)">${eff}%</div></div>`;
   buildReviewContent();
 }
 function buildReviewContent(){
@@ -1377,7 +1377,7 @@ function buildReviewContent(){
     ${days.map((d,i)=>{
       const de=wEnt.filter(e=>e.day===dk(d)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
       if(!de.length)return'';
-      return`<div class="day-block"><div class="db-name">${DAYS_SHORT[i]} ${d.getDate()} · ${mh(de.reduce((s,e)=>s+(e.duration_mins||0),0))}h</div>${de.map(e=>{const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';return`<div class="db-entry"><span class="db-time">${ft(e.start_h,e.start_m)}–${ft(e.end_h,e.end_m)}</span><span style="flex:1">${e.task}</span><span class="tag ${tagCls}">${mh(e.duration_mins||0)}h</span></div>`;}).join('')}</div>`;
+      return`<div class="day-block"><div class="db-name">${DAYS_SHORT[i]} ${d.getDate()} · ${mh(de.reduce((s,e)=>s+(e.duration_mins||0),0))}</div>${de.map(e=>{const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';return`<div class="db-entry"><span class="db-time">${ft(e.start_h,e.start_m)}–${ft(e.end_h,e.end_m)}</span><span style="flex:1">${e.task}</span><span class="tag ${tagCls}">${mh(e.duration_mins||0)}</span></div>`;}).join('')}</div>`;
     }).join('')}
     ${ref.went_well?`<div style="background:rgba(62,207,114,0.08);border:1px solid rgba(62,207,114,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-bottom:6px">WHAT WENT WELL</div><div style="font-size:13px;color:var(--text2)">${ref.went_well}</div></div>`:''}
     ${ref.next_week?`<div style="background:rgba(255,107,26,0.08);border:1px solid rgba(255,107,26,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--orange);margin-bottom:6px">NEXT WEEK</div><div style="font-size:13px;color:var(--text2)">${ref.next_week}</div></div>`:''}
@@ -1411,7 +1411,7 @@ function exportToExcel(){
   const wsData=[
     ['PROGRESS HEX – Weekly Time Report'],
     [`Client: ${clientName}`],
-    [`Week of: ${weekOf}`,``,`Total: ${mh(tot)}h`,`Productive: ${mh(prod)}h`,`Efficiency: ${eff}%`],
+    [`Week of: ${weekOf}`,``,`Total: ${mh(tot)}`,`Productive: ${mh(prod)}`,`Efficiency: ${eff}%`],
     [],
     ['Day','Date','Start','End','Duration (mins)','Category','Efficiency','Task','Notes'],
     ...sorted.map(e=>[
