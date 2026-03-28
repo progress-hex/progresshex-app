@@ -1204,7 +1204,7 @@ function populateDaySelect(di,selDay){
   days.forEach((d,i)=>{const o=document.createElement('option');o.value=dk(d);o.textContent=`${DAYS_SHORT[i]} ${fd(d)}`;if(i===di||(selDay&&dk(d)===selDay))o.selected=true;sel.appendChild(o);});
 }
 function populateCatSelect(selId){
-  const sel=document.getElementById('catIn');sel.innerHTML='';
+  const sel=document.getElementById('catIn');sel.innerHTML='<option value="" disabled selected>Pick a category...</option>';
   cats.forEach(cat=>{const o=document.createElement('option');o.value=cat.id;o.textContent=cat.name;if(cat.id===selId)o.selected=true;sel.appendChild(o);});
 }
 function populateTimes(sh,sm,eh,em){
@@ -1332,7 +1332,7 @@ async function saveEntry(){
   const notes=notes_raw;const task=notes_raw.substring(0,80)||catNameFallback();
   const sv=JSON.parse(document.getElementById('startIn').value||'null');
   const ev=JSON.parse(document.getElementById('endIn').value||'null');
-  if(!day||!sv||!ev){resetBtn();return;}
+  if(!catId||!day||!sv||!ev){resetBtn();return;}
   if(!notes_raw){alert('Please add notes — describe what you did.');resetBtn();return;}
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
   if(dur<=0){alert('End time must be after start time');resetBtn();return;}
