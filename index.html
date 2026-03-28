@@ -404,7 +404,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
         <button onclick="changeWeek(1)">›</button>
       </div>
       <div class="tb-total">WEEK: <span id="weekTot">0</span>h</div>
-      <button class="btn-review-d" onclick="openReview()">📋 Week Review</button>
+      <button class="sidebar-toggle" id="toggleLeft" onclick="toggleSidebar('left')" title="Toggle categories">☰</button><button class="btn-review-d" onclick="openReview()">📋 Week Review</button><button class="sidebar-toggle" id="toggleRight" onclick="toggleSidebar('right')" title="Toggle stats">▤</button>
       <span class="user-badge-d" id="userBadge"></span>
       <button class="tb-signout" onclick="signOut()">Sign Out</button>
     </div>
@@ -430,7 +430,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
       <div id="mobileDayEntries"></div>
 
       <!-- Desktop view -->
-      <div class="desktop-sidebar" id="deskSidebar" style="position:relative"><button class="sidebar-toggle" onclick="toggleSidebar('left')" title="Hide sidebar" style="position:absolute;top:10px;right:10px">‹</button>
+      <div class="desktop-sidebar" id="deskSidebar">
         <div class="ds-h">Categories</div>
         <div id="deskCatList"></div>
         <div id="deskClearFilter" style="display:none">
@@ -444,7 +444,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
       <div class="desktop-grid">
         <div id="deskGrid"></div>
       </div>
-      <div class="desktop-right" id="deskRight" style="position:relative"><button class="sidebar-toggle" onclick="toggleSidebar('right')" title="Hide panel" style="position:absolute;top:10px;right:10px">›</button>
+      <div class="desktop-right" id="deskRight">
         
         <div class="rp-sec"><div class="rp-h">Week Breakdown</div><div id="bdList"></div></div>
         <div class="rp-sec">
@@ -815,17 +815,19 @@ function clearCatFilter(){
 function toggleSidebar(side){
   if(side==='left'){
     sidebarLeft=!sidebarLeft;
-    const el=document.getElementById('deskSidebar');
-    el.classList.toggle('sidebar-hidden', !sidebarLeft);
-    document.getElementById('pageTracker').style.gridTemplateColumns=
-      (sidebarLeft?'200px ':'')+' 1fr '+(sidebarRight?'260px':'');
+    document.getElementById('deskSidebar').classList.toggle('sidebar-hidden',!sidebarLeft);
+    const btn=document.getElementById('toggleLeft');
+    btn.style.borderColor=sidebarLeft?'':'var(--orange)';
+    btn.style.color=sidebarLeft?'':'var(--orange)';
   } else {
     sidebarRight=!sidebarRight;
-    const el=document.getElementById('deskRight');
-    el.classList.toggle('sidebar-hidden', !sidebarRight);
-    document.getElementById('pageTracker').style.gridTemplateColumns=
-      (sidebarLeft?'200px ':'')+' 1fr '+(sidebarRight?'260px':'');
+    document.getElementById('deskRight').classList.toggle('sidebar-hidden',!sidebarRight);
+    const btn=document.getElementById('toggleRight');
+    btn.style.borderColor=sidebarRight?'':'var(--orange)';
+    btn.style.color=sidebarRight?'':'var(--orange)';
   }
+  document.getElementById('pageTracker').style.gridTemplateColumns=
+    (sidebarLeft?'200px ':'')+' 1fr '+(sidebarRight?' 260px':'');
 }
 
 function render(){renderDesktop();renderMobile();renderStats();renderMenuCats();}
