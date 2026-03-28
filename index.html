@@ -953,7 +953,7 @@ function renderDesktop(){
       // Add another entry button after each card
       const addBtn=document.createElement('button');
       addBtn.onclick=()=>openAddEntry(deskDayIdx);
-      addBtn.style.cssText='width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:10px;border-radius:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;transition:all 0.15s;';
+      addBtn.style.cssText="width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:10px;border-radius:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;transition:all 0.15s;";
       addBtn.textContent='+ Log Another Entry';
       addBtn.onmouseover=()=>{addBtn.style.borderColor='var(--orange)';addBtn.style.color='var(--orange)';};
       addBtn.onmouseout=()=>{addBtn.style.borderColor='var(--border2)';addBtn.style.color='var(--muted)';};
