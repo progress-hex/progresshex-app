@@ -241,6 +241,11 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .day-pills{display:none;}
   #mobileDayEntries{display:none;}
   .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;}
+  /* Full width day view */
+  #pageTracker.active.day-view-mode{grid-template-columns:1fr;}
+  #pageTracker.active.day-view-mode .desktop-sidebar{display:none;}
+  #pageTracker.active.day-view-mode .desktop-right{display:none;}
+  #pageTracker.active.day-view-mode .desktop-grid{padding:20px 32px;}
   .day-col{background:var(--navy2);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-height:200px;}
   .day-header{padding:8px 10px;background:var(--navy3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .day-name-d{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text2);}
@@ -279,10 +284,10 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   /* Desktop right panel */
   .rp-h{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
   .rp-sec{margin-bottom:20px;}
-  .tl-day{margin-bottom:8px;}
-  .tl-lbl{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:3px;}
-  .tl-bar{height:8px;background:var(--navy3);border-radius:4px;position:relative;overflow:hidden;}
-  .tl-seg{position:absolute;top:0;height:100%;border-radius:2px;}
+
+
+
+
   .bd-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
   .bd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
   .bd-name{flex:1;font-size:11px;color:var(--text2);}
@@ -298,14 +303,14 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
   .dvt-btn{background:none;border:none;color:var(--muted);padding:5px 12px;border-radius:5px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
   .dvt-btn.active{background:var(--navy4);color:var(--text);}
   /* Day nav pills on desktop */
-  .desk-day-nav{display:flex;gap:6px;margin-bottom:12px;}
-  .ddn-pill{background:var(--navy2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:var(--text2);transition:all 0.15s;text-align:center;}
+  .desk-day-nav{display:flex;gap:6px;margin-bottom:16px;}
+  .ddn-pill{flex:1;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;padding:10px 8px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:var(--text2);transition:all 0.15s;text-align:center;}
   .ddn-pill:hover{border-color:var(--orange);color:var(--orange);}
   .ddn-pill.active{background:rgba(255,107,26,0.12);border-color:var(--orange);color:var(--orange);}
   .ddn-pill-name{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;display:block;}
   .ddn-pill-date{font-size:9px;display:block;margin-top:1px;}
   /* Day view single column */
-  .day-view-col{background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;max-width:680px;}
+  .day-view-col{background:var(--navy2);border:1px solid var(--border);border-radius:12px;overflow:hidden;width:100%;}
   .day-view-header{padding:14px 16px;background:var(--navy3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
   .day-view-name{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--orange);}
   .day-view-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:2px;}
@@ -442,7 +447,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
         <div class="days-grid" id="deskGrid"></div>
       </div>
       <div class="desktop-right" id="deskRight">
-        <div class="rp-sec"><div class="rp-h">Daily Timeline · 5am–6pm</div><div id="tlPanel"></div></div>
+        
         <div class="rp-sec"><div class="rp-h">Week Breakdown</div><div id="bdList"></div></div>
         <div class="rp-sec">
           <div class="rp-h">Efficiency</div>
@@ -812,7 +817,7 @@ function clearCatFilter(){
 }
 
 // ── RENDER (master) ──
-function render(){renderDesktop();renderMobile();renderStats();renderMenuCats();}
+function render(){document.getElementById('pageTracker').classList.toggle('day-view-mode',deskView==='day');renderDesktop();renderMobile();renderStats();renderMenuCats();}
 
 // ── MOBILE RENDER ──
 // NOTE: Mobile NEVER uses catFilter — all entries always shown on mobile
@@ -896,6 +901,7 @@ function setDeskView(v){
   deskView=v;
   document.getElementById('dvt-day').classList.toggle('active',v==='day');
   document.getElementById('dvt-week').classList.toggle('active',v==='week');
+  document.getElementById('pageTracker').classList.toggle('day-view-mode',v==='day');
   renderDesktop();
 }
 
