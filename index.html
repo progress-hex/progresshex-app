@@ -442,7 +442,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
         <div id="deskGrid"></div>
       </div>
       <div class="desktop-right" id="deskRight">
-        <div class="rp-sec"><div class="rp-h">Daily Timeline · 5am–6pm</div><div id="tlPanel"></div></div>
+        
         <div class="rp-sec"><div class="rp-h">Week Breakdown</div><div id="bdList"></div></div>
         <div class="rp-sec">
           <div class="rp-h">Efficiency</div>
@@ -953,10 +953,10 @@ function renderDesktop(){
       // Add another entry button after each card
       const addBtn=document.createElement('button');
       addBtn.onclick=()=>openAddEntry(deskDayIdx);
-      addBtn.style.cssText="width:100%;background:none;border:1px dashed var(--border2);color:var(--muted);padding:10px;border-radius:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;transition:all 0.15s;";
+      addBtn.style.cssText="width:100%;background:rgba(255,107,26,0.08);border:1px dashed rgba(255,107,26,0.5);color:var(--orange);padding:10px;border-radius:10px;cursor:pointer;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;transition:all 0.15s;";
       addBtn.textContent='+ Log Another Entry';
-      addBtn.onmouseover=()=>{addBtn.style.borderColor='var(--orange)';addBtn.style.color='var(--orange)';};
-      addBtn.onmouseout=()=>{addBtn.style.borderColor='var(--border2)';addBtn.style.color='var(--muted)';};
+
+
       entCont.appendChild(addBtn);
     });
   }
@@ -965,29 +965,6 @@ function renderDesktop(){
 }
 
 function renderRightPanel(days,wEnt){
-  // Timeline
-  const tl=document.getElementById('tlPanel');tl.innerHTML='';
-  days.forEach((d,i)=>{
-    const de=wEnt.filter(e=>e.day===dk(d));
-    const dm=de.reduce((s,e)=>s+(e.duration_mins||0),0);
-    const wrap=document.createElement('div');wrap.className='tl-day';
-    const bid='tlb_'+i;
-    wrap.innerHTML=`<div class="tl-lbl"><span>${DAYS_SHORT[i]} ${d.getDate()}</span>${dm>0?`<span style="color:var(--text)">${mh(dm)}</span>`:''}</div><div class="tl-bar" id="${bid}"></div>`;
-    tl.appendChild(wrap);
-    requestAnimationFrame(()=>{
-      const bar=document.getElementById(bid);if(!bar)return;
-      de.sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m)).forEach(entry=>{
-        const cat=cats.find(c=>c.id===entry.cat_id);
-        const off=toM(entry.start_h,entry.start_m)-toM(DAY_START,0);
-        const lp=Math.max(0,(off/TOTAL_MINS)*100),wp=Math.min(100-lp,((entry.duration_mins||0)/TOTAL_MINS)*100);
-        if(wp<=0)return;
-        const seg=document.createElement('div');seg.className='tl-seg';
-        seg.style.left=lp+'%';seg.style.width=wp+'%';seg.style.background=cat?cat.color:'#555';
-        seg.title=`${entry.task} · ${ft(entry.start_h,entry.start_m)}–${ft(entry.end_h,entry.end_m)}`;
-        bar.appendChild(seg);
-      });
-    });
-  });
   // Breakdown
   const bd=document.getElementById('bdList');bd.innerHTML='';
   const tot=wEnt.reduce((s,e)=>s+(e.duration_mins||0),0);
