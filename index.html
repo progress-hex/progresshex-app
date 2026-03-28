@@ -691,20 +691,22 @@ async function loadDailyLogs(){
 }
 function updateSleepButtons(){
   const today=dk(new Date());
+  const now=new Date();
+  const dayName=now.toLocaleDateString('en-GB',{weekday:'short'});
   const log=dailyLogs[today]||{};
   const wb=document.getElementById('wakeBtn'),bb=document.getElementById('bedBtn');
   if(log.wake_time){
-    wb.innerHTML=`🌅 <span class="tb-sleep-time">${log.wake_time}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('wake')" title="Clear">✕</span>`;
+    wb.innerHTML=`🌅 <span class="tb-sleep-time">${dayName} ${log.wake_time}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('wake')" title="Clear">✕</span>`;
     wb.classList.add('logged');
   } else {
-    wb.innerHTML=`🌅 <span class="tb-sleep-time">Wake</span>`;
+    wb.innerHTML=`🌅 <span class="tb-sleep-time">${dayName} Wake</span>`;
     wb.classList.remove('logged');
   }
   if(log.bed_time){
-    bb.innerHTML=`🌙 <span class="tb-sleep-time">${log.bed_time}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('bed')" title="Clear">✕</span>`;
+    bb.innerHTML=`🌙 <span class="tb-sleep-time">${dayName} ${log.bed_time}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('bed')" title="Clear">✕</span>`;
     bb.classList.add('logged');
   } else {
-    bb.innerHTML=`🌙 <span class="tb-sleep-time">Bed</span>`;
+    bb.innerHTML=`🌙 <span class="tb-sleep-time">${dayName} Bed</span>`;
     bb.classList.remove('logged');
   }
 }
@@ -1442,7 +1444,9 @@ function buildReviewContent(){
     ${days.map((d,i)=>{
       const de=wEnt.filter(e=>e.day===dk(d)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
       if(!de.length)return'';
-      return`<div class="day-block"><div class="db-name">${DAYS_SHORT[i]} ${d.getDate()} · ${mh(de.reduce((s,e)=>s+(e.duration_mins||0),0))}</div>${de.map(e=>{const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';return`<div class="db-entry"><span class="db-time">${ft(e.start_h,e.start_m)}–${ft(e.end_h,e.end_m)}</span><span style="flex:1">${e.task}</span><span class="tag ${tagCls}">${mh(e.duration_mins||0)}</span></div>`;}).join('')}</div>`;
+      const dLog=dailyLogs[dk(d)]||{};
+      const sleepRow=dLog.wake_time||dLog.bed_time?`<div style="display:flex;gap:12px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border2);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">${dLog.wake_time?`🌅 Wake <span style="color:var(--text2)">${dLog.wake_time}</span>`:''} ${dLog.bed_time?`&nbsp;🌙 Bed <span style="color:var(--text2)">${dLog.bed_time}</span>`:''}</div>`:'';
+      return`<div class="day-block"><div class="db-name">${DAYS_SHORT[i]} ${d.getDate()} · ${mh(de.reduce((s,e)=>s+(e.duration_mins||0),0))}</div>${sleepRow}${de.map(e=>{const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';return`<div class="db-entry"><span class="db-time">${ft(e.start_h,e.start_m)}–${ft(e.end_h,e.end_m)}</span><span style="flex:1">${e.task}</span><span class="tag ${tagCls}">${mh(e.duration_mins||0)}</span></div>`;}).join('')}</div>`;
     }).join('')}
     ${ref.went_well?`<div style="background:rgba(62,207,114,0.08);border:1px solid rgba(62,207,114,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--green);margin-bottom:6px">WHAT WENT WELL</div><div style="font-size:13px;color:var(--text2)">${ref.went_well}</div></div>`:''}
     ${ref.next_week?`<div style="background:rgba(255,107,26,0.08);border:1px solid rgba(255,107,26,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--orange);margin-bottom:6px">NEXT WEEK</div><div style="font-size:13px;color:var(--text2)">${ref.next_week}</div></div>`:''}
