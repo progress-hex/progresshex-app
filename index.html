@@ -994,29 +994,6 @@ function renderDesktop(){
 }
 
 function renderRightPanel(days,wEnt){
-  // Timeline
-  const tl=document.getElementById('tlPanel');tl.innerHTML='';
-  days.forEach((d,i)=>{
-    const de=wEnt.filter(e=>e.day===dk(d));
-    const dm=de.reduce((s,e)=>s+(e.duration_mins||0),0);
-    const wrap=document.createElement('div');wrap.className='tl-day';
-    const bid='tlb_'+i;
-    wrap.innerHTML=`<div class="tl-lbl"><span>${DAYS_SHORT[i]} ${d.getDate()}</span>${dm>0?`<span style="color:var(--text)">${mh(dm)}</span>`:''}</div><div class="tl-bar" id="${bid}"></div>`;
-    tl.appendChild(wrap);
-    requestAnimationFrame(()=>{
-      const bar=document.getElementById(bid);if(!bar)return;
-      de.sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m)).forEach(entry=>{
-        const cat=cats.find(c=>c.id===entry.cat_id);
-        const off=toM(entry.start_h,entry.start_m)-toM(DAY_START,0);
-        const lp=Math.max(0,(off/TOTAL_MINS)*100),wp=Math.min(100-lp,((entry.duration_mins||0)/TOTAL_MINS)*100);
-        if(wp<=0)return;
-        const seg=document.createElement('div');seg.className='tl-seg';
-        seg.style.left=lp+'%';seg.style.width=wp+'%';seg.style.background=cat?cat.color:'#555';
-        seg.title=`${entry.task} · ${ft(entry.start_h,entry.start_m)}–${ft(entry.end_h,entry.end_m)}`;
-        bar.appendChild(seg);
-      });
-    });
-  });
   // Breakdown
   const bd=document.getElementById('bdList');bd.innerHTML='';
   const tot=wEnt.reduce((s,e)=>s+(e.duration_mins||0),0);
