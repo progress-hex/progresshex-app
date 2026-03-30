@@ -406,7 +406,6 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
         <button onclick="changeWeek(1)">›</button>
       </div>
       <div class="tb-total">WEEK: <span id="weekTot">0</span>h</div>
-      <button class="sidebar-toggle" id="toggleLeft" onclick="toggleSidebar('left')" title="Toggle categories">☰</button><button class="btn-review-d" onclick="openReview()">📋 Week Review</button><button class="sidebar-toggle" id="toggleRight" onclick="toggleSidebar('right')" title="Toggle stats">▤</button>
       <span class="user-badge-d" id="userBadge"></span>
       <button class="tb-signout" onclick="signOut()">Sign Out</button>
     </div>
@@ -433,7 +432,10 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
 
       <!-- Desktop view -->
       <div class="desktop-sidebar" id="deskSidebar">
-        <div class="ds-h">Categories</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="ds-h" style="margin-bottom:0">Categories</div>
+          <button class="sidebar-toggle" id="toggleLeft" onclick="toggleSidebar('left')" title="Collapse">‹</button>
+        </div>
         <div id="deskCatList"></div>
         <div id="deskClearFilter" style="display:none">
           <button class="ds-clear-filter" onclick="clearCatFilter()">✕ Clear Filter</button>
@@ -447,8 +449,11 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
         <div id="deskGrid"></div>
       </div>
       <div class="desktop-right" id="deskRight">
-        
-        <div class="rp-sec"><div class="rp-h">Week Breakdown</div><div id="bdList"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <button class="sidebar-toggle" id="toggleRight" onclick="toggleSidebar('right')" title="Collapse">›</button>
+          <div class="rp-h" style="margin-bottom:0">Week Breakdown</div>
+        </div>
+        <div class="rp-sec"><div id="bdList"></div></div>
         <div class="rp-sec">
           <div class="rp-h">Efficiency</div>
           <div class="ins-grid">
@@ -543,6 +548,9 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
     </div>
   </div>
 </div>
+<!-- Sidebar reopen tabs (desktop only, shown when sidebar is collapsed) -->
+<button id="reopenLeft" onclick="toggleSidebar('left')" title="Show categories" style="display:none;position:fixed;left:0;top:50%;transform:translateY(-50%);z-index:50;background:var(--navy2);border:1px solid var(--border);border-left:none;border-radius:0 8px 8px 0;color:var(--orange);width:20px;height:64px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;font-size:14px;">›</button>
+<button id="reopenRight" onclick="toggleSidebar('right')" title="Show stats" style="display:none;position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:50;background:var(--navy2);border:1px solid var(--border);border-right:none;border-radius:8px 0 0 8px;color:var(--orange);width:20px;height:64px;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;font-size:14px;">‹</button>
 </div><!-- /app -->
 
 <!-- FAB -->
@@ -816,6 +824,17 @@ async function saveSleepTime(){
 }
 function logWakeTime(){openSleepPicker('wake');}
 function logBedTime(){openSleepPicker('bed');}
+async function autoWorkStart(){
+  const today=dk(new Date());
+  const existing=dailyLogs[today]||{};
+  if(existing.work_start) return; // already set, do nothing
+  const now=new Date();
+  const t=ft(now.getHours(),now.getMinutes());
+  const row={user_id:user.id,day:today,wake_time:existing.wake_time||null,bed_time:existing.bed_time||null,work_start:t,work_end:existing.work_end||null};
+  await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
+  dailyLogs[today]=row;
+  updateSleepButtons();
+}
 
 // ── HELPERS ──
 function dk(d){return d.toISOString().split('T')[0];}
@@ -841,15 +860,11 @@ function toggleSidebar(side){
   if(side==='left'){
     sidebarLeft=!sidebarLeft;
     document.getElementById('deskSidebar').classList.toggle('sidebar-hidden',!sidebarLeft);
-    const btn=document.getElementById('toggleLeft');
-    btn.style.borderColor=sidebarLeft?'':'var(--orange)';
-    btn.style.color=sidebarLeft?'':'var(--orange)';
+    document.getElementById('reopenLeft').style.display=sidebarLeft?'none':'flex';
   } else {
     sidebarRight=!sidebarRight;
     document.getElementById('deskRight').classList.toggle('sidebar-hidden',!sidebarRight);
-    const btn=document.getElementById('toggleRight');
-    btn.style.borderColor=sidebarRight?'':'var(--orange)';
-    btn.style.color=sidebarRight?'':'var(--orange)';
+    document.getElementById('reopenRight').style.display=sidebarRight?'none':'flex';
   }
   document.getElementById('pageTracker').style.gridTemplateColumns=
     (sidebarLeft?'200px ':'')+' 1fr '+(sidebarRight?' 260px':'');
@@ -954,6 +969,8 @@ function renderDesktop(){
     div.innerHTML=`<div class="ds-dot" style="background:${cat.color}"></div><div class="ds-name" style="${isActive?'color:var(--orange);font-weight:600':''}">${cat.name}</div><div class="ds-hrs">${m>0?mh(m):''}</div><button class="ds-edit" onclick="openEditCat(event,'${cat.id}')">✏</button><button class="ds-del" onclick="deleteCat(event,'${cat.id}')">✕</button>`;
     div.onclick=(e)=>{
       if(e.target.classList.contains('ds-del'))return;
+      // Auto-log work_start on first category click of the day
+      autoWorkStart();
       // Toggle: click same category again to clear filter
       catFilter=catFilter===cat.id?null:cat.id;
       render();
