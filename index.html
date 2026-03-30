@@ -394,6 +394,8 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
       <div class="tb-sleep">
         <button class="tb-sleep-btn" id="wakeBtn" onclick="logWakeTime()" title="Log wake time">🌅 <span class="tb-sleep-time" id="wakeLbl">Wake</span></button>
         <button class="tb-sleep-btn" id="bedBtn" onclick="logBedTime()" title="Log bed time">🌙 <span class="tb-sleep-time" id="bedLbl">Bed</span></button>
+        <button class="tb-sleep-btn" id="workStartBtn" onclick="openSleepPicker('work_start')" title="Log office start time">💼 <span class="tb-sleep-time" id="workStartLbl">Start</span></button>
+        <button class="tb-sleep-btn" id="workEndBtn" onclick="openSleepPicker('work_end')" title="Log office finish time">🏁 <span class="tb-sleep-time" id="workEndLbl">Finish</span></button>
       </div>
     </div>
     <div class="tb-right">
@@ -739,6 +741,7 @@ function updateSleepButtons(){
   const dayName=now.toLocaleDateString('en-GB',{weekday:'long'});
   const log=dailyLogs[today]||{};
   const wb=document.getElementById('wakeBtn'),bb=document.getElementById('bedBtn');
+  const wsb=document.getElementById('workStartBtn'),web=document.getElementById('workEndBtn');
   if(log.wake_time){
     wb.innerHTML=`🌅 <span class="tb-sleep-time">${dayName} ${log.wake_time}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('wake')" title="Clear">✕</span>`;
     wb.classList.add('logged');
@@ -753,37 +756,59 @@ function updateSleepButtons(){
     bb.innerHTML=`🌙 <span class="tb-sleep-time">${dayName} Bed</span>`;
     bb.classList.remove('logged');
   }
+  if(wsb){
+    if(log.work_start){
+      wsb.innerHTML=`💼 <span class="tb-sleep-time">${dayName} ${log.work_start}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('work_start')" title="Clear">✕</span>`;
+      wsb.classList.add('logged');
+    } else {
+      wsb.innerHTML=`💼 <span class="tb-sleep-time">${dayName} Start</span>`;
+      wsb.classList.remove('logged');
+    }
+  }
+  if(web){
+    if(log.work_end){
+      web.innerHTML=`🏁 <span class="tb-sleep-time">${dayName} ${log.work_end}</span><span class="tb-sleep-clear" onclick="event.stopPropagation();clearSleepTime('work_end')" title="Clear">✕</span>`;
+      web.classList.add('logged');
+    } else {
+      web.innerHTML=`🏁 <span class="tb-sleep-time">${dayName} Finish</span>`;
+      web.classList.remove('logged');
+    }
+  }
 }
 async function clearSleepTime(type){
   const today=dk(new Date());
   const existing=dailyLogs[today]||{};
-  const row={user_id:user.id,day:today,wake_time:type==='wake'?null:existing.wake_time||null,bed_time:type==='bed'?null:existing.bed_time||null};
+  const row={user_id:user.id,day:today,wake_time:type==='wake'?null:existing.wake_time||null,bed_time:type==='bed'?null:existing.bed_time||null,work_start:type==='work_start'?null:existing.work_start||null,work_end:type==='work_end'?null:existing.work_end||null};
   await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
   dailyLogs[today]=row;updateSleepButtons();
 }
 let sleepType=null;
 function openSleepPicker(type){
   sleepType=type;
-  const isWake=type==='wake';
-  document.getElementById('sleepSheetTitle').textContent=isWake?'🌅 Wake Time':'🌙 Bed Time';
-  document.getElementById('sleepTypeLabel').textContent=isWake?'wake up':'go to bed';
+  const titles={wake:'🌅 Wake Time',bed:'🌙 Bed Time',work_start:'💼 Office Start',work_end:'🏁 Office Finish'};
+  const labels={wake:'wake up',bed:'go to bed',work_start:'start work',work_end:'finish work'};
+  document.getElementById('sleepSheetTitle').textContent=titles[type]||'Time';
+  document.getElementById('sleepTypeLabel').textContent=labels[type]||'log';
   const sel=document.getElementById('sleepTimeSelect');sel.innerHTML='';
   const opts=[];
-  if(isWake){for(let h=4;h<=11;h++)for(let m=0;m<60;m+=15)opts.push({h,m});}
-  else{[20,21,22,23,0,1,2].forEach(h=>{for(let m=0;m<60;m+=15)opts.push({h,m});});}
+  if(type==='wake'){for(let h=4;h<=11;h++)for(let m=0;m<60;m+=15)opts.push({h,m});}
+  else if(type==='bed'){[20,21,22,23,0,1,2].forEach(h=>{for(let m=0;m<60;m+=15)opts.push({h,m});});}
+  else if(type==='work_start'){for(let h=5;h<=12;h++)for(let m=0;m<60;m+=15)opts.push({h,m});}
+  else if(type==='work_end'){for(let h=12;h<=23;h++)for(let m=0;m<60;m+=15)opts.push({h,m});}
   opts.forEach(o=>{const op=document.createElement('option');op.value=ft(o.h,o.m);op.textContent=ft(o.h,o.m);sel.appendChild(op);});
   const today=dk(new Date());
   const existing=dailyLogs[today]||{};
-  const existing_t=isWake?existing.wake_time:existing.bed_time;
+  const existing_t=existing[type==='wake'?'wake_time':type==='bed'?'bed_time':type==='work_start'?'work_start':type==='work_end'?'work_end':type]||null;
+  const defaults={wake:ft(7,0),bed:ft(22,0),work_start:ft(9,0),work_end:ft(17,0)};
   if(existing_t){const found=[...sel.options].find(o=>o.value===existing_t);if(found)sel.value=existing_t;}
-  else{sel.value=isWake?ft(7,0):ft(22,0);}
+  else{sel.value=defaults[type]||sel.options[0]?.value;}
   document.getElementById('sleepOverlay').classList.add('open');
 }
 async function saveSleepTime(){
   const today=dk(new Date());
   const existing=dailyLogs[today]||{};
   const t=document.getElementById('sleepTimeSelect').value;
-  const row={user_id:user.id,day:today,wake_time:sleepType==='wake'?t:existing.wake_time||null,bed_time:sleepType==='bed'?t:existing.bed_time||null};
+  const row={user_id:user.id,day:today,wake_time:sleepType==='wake'?t:existing.wake_time||null,bed_time:sleepType==='bed'?t:existing.bed_time||null,work_start:sleepType==='work_start'?t:existing.work_start||null,work_end:sleepType==='work_end'?t:existing.work_end||null};
   await sb.from('daily_logs').upsert(row,{onConflict:'user_id,day'});
   dailyLogs[today]=row;
   document.getElementById('sleepOverlay').classList.remove('open');
@@ -1512,7 +1537,7 @@ function buildReviewContent(){
       const de=wEnt.filter(e=>e.day===dk(d)).sort((a,b)=>toM(a.start_h,a.start_m)-toM(b.start_h,b.start_m));
       if(!de.length)return'';
       const dLog=dailyLogs[dk(d)]||{};
-      const sleepRow=dLog.wake_time||dLog.bed_time?`<div style="display:flex;gap:12px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border2);font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${dLog.wake_time?`🌅 Wake <span style="color:var(--text2)">${dLog.wake_time}</span>`:''} ${dLog.bed_time?`&nbsp;🌙 Bed <span style="color:var(--text2)">${dLog.bed_time}</span>`:''}</div>`:'';
+      const sleepRow=(dLog.wake_time||dLog.bed_time||dLog.work_start||dLog.work_end)?`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border2);font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${dLog.wake_time?`🌅 <span style="color:var(--text2)">${dLog.wake_time}</span>`:''} ${dLog.bed_time?`&nbsp;🌙 <span style="color:var(--text2)">${dLog.bed_time}</span>`:''} ${dLog.work_start?`&nbsp;💼 <span style="color:var(--text2)">${dLog.work_start}</span>`:''} ${dLog.work_end?`&nbsp;🏁 <span style="color:var(--text2)">${dLog.work_end}</span>`:''}</div>`:'';
       return`<div class="day-block"><div class="db-name">${DAYS_SHORT[i]} ${d.getDate()} · ${mh(de.reduce((s,e)=>s+(e.duration_mins||0),0))}</div>${sleepRow}${de.map(e=>{const tagCls=e.waste==='waste'?'tag-waste':e.waste==='mixed'?'tag-mixed':'tag-good';return`<div class="db-entry"><span class="db-time">${ft(e.start_h,e.start_m)}–${ft(e.end_h,e.end_m)}</span><span style="flex:1">${e.task}</span><span class="tag ${tagCls}">${mh(e.duration_mins||0)}</span></div>`;}).join('')}</div>`;
     }).join('')}
     ${ref.went_well?`<div style="background:rgba(62,207,114,0.08);border:1px solid rgba(62,207,114,0.2);border-radius:10px;padding:12px;margin-top:8px"><div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green);margin-bottom:6px">WHAT WENT WELL</div><div style="font-size:12px;color:var(--text2)">${ref.went_well}</div></div>`:''}
