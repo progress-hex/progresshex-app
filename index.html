@@ -458,6 +458,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
           <div class="rp-h">Efficiency</div>
           <div class="ins-grid">
             <div class="ins-card"><div class="ins-lbl">Productive</div><div class="ins-val" id="prodHrs" style="color:var(--green)">0h</div></div>
+            <div class="ins-card"><div class="ins-lbl">Mixed</div><div class="ins-val" id="mixedHrs" style="color:var(--yellow)">0h</div></div>
             <div class="ins-card"><div class="ins-lbl">Wasted</div><div class="ins-val" id="wasteHrs" style="color:var(--red)">0h</div></div>
           </div>
           <div id="wasteAudit"></div>
@@ -470,6 +471,7 @@ html,body{height:100%;overflow:hidden;background:var(--navy);color:var(--text);f
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Total Hours</div><div class="stat-val" id="sTot" style="color:var(--text)">0h</div></div>
         <div class="stat-card"><div class="stat-label">Productive</div><div class="stat-val" id="sProd" style="color:var(--green)">0h</div></div>
+        <div class="stat-card"><div class="stat-label">Mixed</div><div class="stat-val" id="sMixed" style="color:var(--yellow)">0h</div></div>
         <div class="stat-card"><div class="stat-label">Wasted</div><div class="stat-val" id="sWaste" style="color:var(--red)">0h</div></div>
         <div class="stat-card"><div class="stat-label">Efficiency</div><div class="stat-val" id="sEff" style="color:var(--orange)">0%</div></div>
       </div>
@@ -922,6 +924,7 @@ function renderStats(){
   const eff=tot>0?Math.round(prod/tot*100):0;
   document.getElementById('sTot').textContent=mh(tot);
   document.getElementById('sProd').textContent=mh(prod);
+  document.getElementById('sMixed').textContent=mh(wEnt.filter(e=>e.waste==='mixed').reduce((s,e)=>s+(e.duration_mins||0),0));
   document.getElementById('sWaste').textContent=mh(waste);
   document.getElementById('sEff').textContent=eff+'%';
   const bc=document.getElementById('sByCat');bc.innerHTML='';
@@ -1041,6 +1044,7 @@ function renderRightPanel(days,wEnt){
   const prod=wEnt.filter(e=>e.waste==='good').reduce((s,e)=>s+(e.duration_mins||0),0);
   const waste=wEnt.filter(e=>e.waste==='waste').reduce((s,e)=>s+(e.duration_mins||0),0);
   document.getElementById('prodHrs').innerHTML=mh(prod);
+  document.getElementById('mixedHrs').innerHTML=mh(wEnt.filter(e=>e.waste==='mixed').reduce((s,e)=>s+(e.duration_mins||0),0));
   document.getElementById('wasteHrs').innerHTML=mh(waste);
   const au=document.getElementById('wasteAudit');au.innerHTML='';
   [{l:'Productive',m:prod,cls:'tag-good'},{l:'Mixed',m:wEnt.filter(e=>e.waste==='mixed').reduce((s,e)=>s+(e.duration_mins||0),0),cls:'tag-mixed'},{l:'Wasted',m:waste,cls:'tag-waste'}].forEach(r=>{
@@ -1326,21 +1330,12 @@ function openAddEntry(di){
   document.getElementById('sheetTitle').textContent='Log Time';
     document.getElementById('notesIn').value='';
   document.getElementById('delBtn').style.display='none';
-  // Smart default: chain from last entry's end time on this day (within 15 mins)
-  const _days=getWeek(weekOffset);
-  const _selKey=dk(_days[di]);
-  const _dayEnts=entries.filter(e=>e.day===_selKey).sort((a,b)=>toM(a.end_h,a.end_m)-toM(b.end_h,b.end_m));
-  let sh,sm,eh,em;
-  if(_dayEnts.length>0){
-    const _last=_dayEnts[_dayEnts.length-1];
-    sh=_last.end_h; sm=_last.end_m;
-  } else {
-    const now=new Date();
-    sh=now.getHours(); sm=Math.round(now.getMinutes()/15)*15;
-    if(sm===60){sh+=1;sm=0;}
-  }
+  // Default times: nearest 15-min slot to now, +1hr for end
+  const now=new Date();
+  let sh=now.getHours(), sm=Math.round(now.getMinutes()/15)*15;
+  if(sm===60){sh+=1;sm=0;}
   sh=Math.max(DAY_START,Math.min(DAY_END,sh));
-  eh=sh+1; em=sm;
+  let eh=sh+1, em=sm;
   if(eh>DAY_END){eh=DAY_END;em=0;}
   populateDaySelect(di,null);populateCatSelect(null);populateTimes(sh,sm,eh,em);setWaste('good');
   document.getElementById('entryOverlay').classList.add('open');
@@ -1421,13 +1416,6 @@ async function saveEntry(){
   if(!notes_raw){alert('Please add notes — describe what you did.');resetBtn();return;}
   const dur=(ev.h*60+ev.m)-(sv.h*60+sv.m);
   if(dur<=0){alert('End time must be after start time');resetBtn();return;}
-  // Overlap check — block if this entry clashes with any existing entry on the same day
-  const _newStart=toM(sv.h,sv.m),_newEnd=toM(ev.h,ev.m);
-  const _overlap=entries.filter(e=>e.day===day&&e.id!==editingId).some(e=>{
-    const _es=toM(e.start_h,e.start_m),_ee=toM(e.end_h,e.end_m);
-    return _newStart<_ee&&_newEnd>_es;
-  });
-  if(_overlap){alert('⚠️ This entry overlaps with an existing entry on this day.\n\nAdjust the start or end time and try again.');resetBtn();return;}
   if(!editingId && isLocked(day)){
     const ok=window.confirm('⚠️ You are adding an entry to a past day.\n\nOnce saved it cannot be edited or deleted — it will be permanently locked.\n\nAre you sure you want to continue?');
     if(!ok){resetBtn();return;}
